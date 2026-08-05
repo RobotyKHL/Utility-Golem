@@ -1,0 +1,9 @@
+{
+  "name": "golem-bootstrap",
+  "version": "1.0.0",
+  "description": "Golem Bootstrap",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
