@@ -26,6 +26,23 @@ module.exports = {
         }
       }
 
+      // Command Channel check (skip for moderation commands and admins)
+      if (guildId) {
+        const settings = db.getGuildSettings(guildId);
+        if (settings.command_channel && command.module !== 'moderation' && command.module !== 'tickets') {
+          if (interaction.channelId !== settings.command_channel) {
+            // Check if user has administrator permission to bypass
+            const hasAdmin = interaction.memberPermissions?.has('Administrator');
+            if (!hasAdmin) {
+              return interaction.reply({
+                content: `Commands can only be used in <#${settings.command_channel}>.`,
+                flags: 64
+              });
+            }
+          }
+        }
+      }
+
       // Check Command Cooldowns
       const { cooldowns } = client;
       if (!cooldowns.has(command.data.name)) {

@@ -85,6 +85,8 @@ function getGuildSettings(guildId) {
       ticket_category: defaults.ticketCategory,
       ticket_logs_channel: defaults.ticketLogsChannel,
       leveling_enabled: defaults.levelingEnabled,
+      leveling_message_channel: null, // Where level up messages are sent
+      command_channel: null, // If set, bot commands only work here
       minecraft_enabled: defaults.minecraftEnabled,
       minecraft_ip: defaults.minecraftIp,
       minecraft_port: defaults.minecraftPort,

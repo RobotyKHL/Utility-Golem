@@ -56,13 +56,22 @@ module.exports = {
             }
           }
 
-          message.channel.send({
-            embeds: [createEmbed({
-              title: "Level Up!",
-              description: `Congratulations ${message.author}! You have reached **Level ${newLevel}**${rewardText}!`,
-              color: '#2ed573'
-            })]
+          const levelEmbed = createEmbed({
+            title: "Level Up!",
+            description: `Congratulations ${message.author}! You have reached **Level ${newLevel}**${rewardText}!`,
+            color: '#2ed573'
           });
+
+          if (settings.leveling_message_channel) {
+            const levelChannel = message.guild.channels.cache.get(settings.leveling_message_channel);
+            if (levelChannel) {
+              levelChannel.send({ embeds: [levelEmbed] }).catch(() => {});
+            } else {
+              message.channel.send({ embeds: [levelEmbed] }).catch(() => {});
+            }
+          } else {
+            message.channel.send({ embeds: [levelEmbed] }).catch(() => {});
+          }
         }
       }
     }
