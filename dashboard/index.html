@@ -6,6 +6,7 @@
   <title>Golem Dashboard — Server Guardian</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -216,7 +217,8 @@
     .nav-item:hover { background: var(--card2); color: var(--text); }
     .nav-item.active { background: var(--accent); color: var(--accent-fg); }
     .nav-item.active .nav-icon { opacity: 1; }
-    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-item .nav-icon { display: flex; align-items: center; justify-content: center; width: 20px; }
+    .nav-item .nav-icon svg { width: 18px; height: 18px; stroke-width: 2.5px; }
 
     .sidebar-footer {
       border-top: 1px solid var(--border);
@@ -341,7 +343,9 @@
     .module-card.enabled { border-color: var(--green); box-shadow: 0 0 10px rgba(34,197,94,0.1); }
 
     .module-info { display: flex; align-items: center; gap: 12px; }
-    .module-emoji { font-size: 22px; }
+    .module-emoji { display: flex; align-items: center; justify-content: center; color: var(--muted); }
+    .module-card.enabled .module-emoji { color: var(--green); }
+    .module-emoji svg { width: 22px; height: 22px; stroke-width: 2px; }
     .module-name  { font-size: 14px; font-weight: 600; }
     .module-desc  { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
@@ -523,7 +527,7 @@
       font-size: 14px;
     }
 
-    .empty-state .emoji { font-size: 36px; margin-bottom: 12px; }
+    .empty-state svg { width: 36px; height: 36px; margin-bottom: 12px; stroke-width: 1.5px; opacity: 0.5; }
 
     /* ── Responsive ─────────────────────────────── */
     @media (max-width: 900px) {
@@ -583,20 +587,20 @@
     <nav class="sidebar-nav">
       <div class="nav-section">Overview</div>
       <a class="nav-item active" data-page="dashboard" onclick="navTo('dashboard')">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span> Dashboard
       </a>
 
       <div class="nav-section">Modules</div>
       <a class="nav-item" data-page="modules" onclick="navTo('modules')">
-        <span class="nav-icon">🧩</span> Modules
+        <span class="nav-icon"><i data-lucide="blocks"></i></span> Modules
       </a>
       <a class="nav-item" data-page="logs" onclick="navTo('logs')">
-        <span class="nav-icon">📋</span> Mod Logs
+        <span class="nav-icon"><i data-lucide="clipboard-list"></i></span> Mod Logs
       </a>
 
       <div class="nav-section">Config</div>
       <a class="nav-item" data-page="settings" onclick="navTo('settings')">
-        <span class="nav-icon">⚙️</span> Settings
+        <span class="nav-icon"><i data-lucide="settings"></i></span> Settings
       </a>
     </nav>
 
@@ -607,12 +611,12 @@
       </div>
       <div style="margin-top:8px;">
         <a class="nav-item" onclick="toggleTheme()" style="color:var(--text);">
-          <span class="nav-icon">🎨</span> Toggle Theme
+          <span class="nav-icon"><i data-lucide="palette"></i></span> Toggle Theme
         </a>
       </div>
       <div style="margin-top:2px;">
         <a class="nav-item" onclick="logout()" style="color:var(--red);">
-          <span class="nav-icon">🚪</span> Disconnect
+          <span class="nav-icon"><i data-lucide="log-out"></i></span> Disconnect
         </a>
       </div>
     </div>
@@ -814,17 +818,17 @@
   }
 
   const MODULES = [
-    { key: 'moderation',  label: 'Moderation',  emoji: '🛡️', desc: 'Ban, kick, warn, mute...' },
-    { key: 'automod',     label: 'Automod',      emoji: '🤖', desc: 'Anti-spam, bad words...' },
-    { key: 'logging',     label: 'Logging',      emoji: '📋', desc: 'Audit log events' },
-    { key: 'welcome',     label: 'Welcome',      emoji: '👋', desc: 'Join/leave messages' },
-    { key: 'tickets',     label: 'Tickets',      emoji: '🎫', desc: 'Support ticket system' },
-    { key: 'suggestions', label: 'Suggestions',  emoji: '💡', desc: 'Community suggestions' },
-    { key: 'giveaways',   label: 'Giveaways',    emoji: '🎁', desc: 'Giveaway manager' },
-    { key: 'leveling',    label: 'Leveling',     emoji: '📈', desc: 'XP and levels' },
-    { key: 'starboard',   label: 'Starboard',    emoji: '⭐', desc: 'Star reaction board' },
-    { key: 'minecraft',   label: 'Minecraft',    emoji: '⛏️', desc: 'Server status queries' },
-    { key: 'utility',     label: 'Utility',      emoji: '🔧', desc: 'Userinfo, ping, etc.' },
+    { key: 'moderation',  label: 'Moderation',  emoji: 'shield', desc: 'Ban, kick, warn, mute...' },
+    { key: 'automod',     label: 'Automod',     emoji: 'bot', desc: 'Anti-spam, bad words...' },
+    { key: 'logging',     label: 'Logging',     emoji: 'clipboard-list', desc: 'Audit log events' },
+    { key: 'welcome',     label: 'Welcome',     emoji: 'user-plus', desc: 'Join/leave messages' },
+    { key: 'tickets',     label: 'Tickets',     emoji: 'ticket', desc: 'Support ticket system' },
+    { key: 'suggestions', label: 'Suggestions', emoji: 'lightbulb', desc: 'Community suggestions' },
+    { key: 'giveaways',   label: 'Giveaways',   emoji: 'gift', desc: 'Giveaway manager' },
+    { key: 'leveling',    label: 'Leveling',    emoji: 'trending-up', desc: 'XP and levels' },
+    { key: 'starboard',   label: 'Starboard',   emoji: 'star', desc: 'Star reaction board' },
+    { key: 'minecraft',   label: 'Minecraft',   emoji: 'pickaxe', desc: 'Server status queries' },
+    { key: 'utility',     label: 'Utility',     emoji: 'wrench', desc: 'Userinfo, ping, etc.' },
   ];
 
   // ── API Helper ───────────────────────────────────
@@ -891,8 +895,10 @@
     document.getElementById(`page-${page}`).classList.add('active');
     document.querySelector(`[data-page="${page}"]`).classList.add('active');
 
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'modules') loadModules();
     if (page === 'logs') loadLogs();
-    if (page === 'settings' && GUILD_ID) loadSettings();
+    if (page === 'settings') loadSettings();
   }
 
   // ── Dashboard ────────────────────────────────────
