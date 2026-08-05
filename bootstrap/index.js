@@ -52,35 +52,26 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
     // Extract tar.gz
     run(`tar -xzf "${TMP_TAR}" -C /tmp/`);
 
-    // Back up user's config.json and .env before overwriting
-    const configDest  = path.join(CONTAINER, 'config.json');
+    // Back up user's config.json, .env, and database before overwriting
+    const configDest   = path.join(CONTAINER, 'config.json');
     const configBackup = path.join(CONTAINER, 'config.json.bak');
     const envDest      = path.join(CONTAINER, '.env');
     const envBackup    = path.join(CONTAINER, '.env.bak');
+    const dbDest       = path.join(CONTAINER, 'golem_db.json');
+    const dbBackup     = path.join(CONTAINER, 'golem_db.json.bak');
 
-    if (fileExists(configDest)) {
-      fs.copyFileSync(configDest, configBackup);
-      console.log('[Golem] config.json backed up.');
-    }
-    if (fileExists(envDest)) {
-      fs.copyFileSync(envDest, envBackup);
-      console.log('[Golem] .env backed up.');
-    }
+    if (fileExists(configDest)) { fs.copyFileSync(configDest, configBackup); console.log('[Golem] config.json backed up.'); }
+    if (fileExists(envDest))    { fs.copyFileSync(envDest, envBackup);       console.log('[Golem] .env backed up.'); }
+    if (fileExists(dbDest))     { fs.copyFileSync(dbDest, dbBackup);         console.log('[Golem] golem_db.json backed up (XP + data safe).'); }
 
     // Copy extracted files to container (overwrite)
     run(`cp -r "${TMP_DIR}/." "${CONTAINER}/"`);
 
-    // Restore user's config.json and .env
-    if (fileExists(configBackup)) {
-      fs.copyFileSync(configBackup, configDest);
-      fs.unlinkSync(configBackup);
-      console.log('[Golem] config.json restored — your settings are safe!');
-    }
-    if (fileExists(envBackup)) {
-      fs.copyFileSync(envBackup, envDest);
-      fs.unlinkSync(envBackup);
-      console.log('[Golem] .env restored — your credentials are safe!');
-    }
+    // Restore all protected files
+    if (fileExists(configBackup)) { fs.copyFileSync(configBackup, configDest); fs.unlinkSync(configBackup); console.log('[Golem] config.json restored — your settings are safe!'); }
+    if (fileExists(envBackup))    { fs.copyFileSync(envBackup, envDest);       fs.unlinkSync(envBackup);    console.log('[Golem] .env restored — your credentials are safe!'); }
+    if (fileExists(dbBackup))     { fs.copyFileSync(dbBackup, dbDest);         fs.unlinkSync(dbBackup);     console.log('[Golem] golem_db.json restored — XP and data safe!'); }
+
 
     // Clean up
     run(`rm -rf "${TMP_TAR}" "${TMP_DIR}"`);

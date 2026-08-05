@@ -42,14 +42,15 @@ module.exports = {
 
       const settings = db.getGuildSettings(guildId);
       const prefix = settings.prefix || 'g!';
+      const preview = response.length > 80 ? response.slice(0, 80) + '...' : response;
 
       return interaction.reply({
         embeds: [createEmbed({
-          title: "Custom Command Created",
-          description: `Command \`${prefix}${name}\` has been created.`,
+          title: 'Custom Command Created',
+          description: `Command \`${prefix}${name}\` is ready to use!`,
           fields: [
-            { name: "Response Type", value: isEmbed === 1 ? "Embed" : "Plain Text", inline: true },
-            { name: "Response Content", value: response, inline: false }
+            { name: 'Response Type', value: isEmbed === 1 ? 'Embed' : 'Plain Text', inline: true },
+            { name: 'Preview', value: preview || '(no content)', inline: false }
           ],
           color: '#2ed573'
         })]
@@ -82,7 +83,7 @@ module.exports = {
         embeds: [createEmbed({
           title: "Custom Commands List",
           description: cmdNames.map(name => `• **${prefix}${name}** - ${cmds[name].is_embed === 1 ? '*[Embed]*' : '*[Text]*'}`).join('\n'),
-          color: '#1e1f29'
+          color: '#5865F2'
         })]
       });
     }
