@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const db = require('../database/db');
 const automod = require('../modules/automod/automodHandler');
 const { createEmbed } = require('../utils/embedBuilder');
@@ -56,32 +58,29 @@ module.exports = {
             }
           }
 
-          const embedMsg = {
-            embeds: [createEmbed({
-              title: "Level Up!",
-              description: `Congratulations ${message.author}! You have reached **Level ${newLevel}**${rewardText}!`,
-              color: '#2ed573'
-            })]
-          };
+          const embed = createEmbed({
+            title: "Level Up!",
+            description: `Congratulations ${message.author}! You have reached **Level ${newLevel}**${rewardText}!`,
+            color: '#2ed573'
+          });
 
-          // Check config for a specific level up channel
           let targetChannel = message.channel;
           try {
-            const fs = require('fs');
-            const path = require('path');
-            const configPath = path.join(__dirname, '../../config.json');
+            const configPath = path.join(process.cwd(), 'config.json');
             if (fs.existsSync(configPath)) {
               const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-              if (config.levelUpChannelId) {
-                const customChannel = message.guild.channels.cache.get(config.levelUpChannelId);
-                if (customChannel) {
-                  targetChannel = customChannel;
+              if (config.levelUpChannel && config.levelUpChannel.trim() !== '') {
+                const fetchedChannel = message.guild.channels.cache.get(config.levelUpChannel);
+                if (fetchedChannel) {
+                  targetChannel = fetchedChannel;
                 }
               }
             }
-          } catch (e) {}
+          } catch (e) {
+            // Ignore config read errors and default to message.channel
+          }
 
-          targetChannel.send(embedMsg).catch(() => {});
+          targetChannel.send({ embeds: [embed] }).catch(() => {});
         }
       }
     }
