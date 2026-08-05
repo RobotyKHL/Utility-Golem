@@ -69,8 +69,9 @@ module.exports = {
             const configPath = path.join(process.cwd(), 'config.json');
             if (fs.existsSync(configPath)) {
               const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-              if (config.levelUpChannel && config.levelUpChannel.trim() !== '') {
-                const fetchedChannel = message.guild.channels.cache.get(config.levelUpChannel);
+              const levelUpChannelId = (config.channels && config.channels.levelUp) || config.levelUpChannel || '';
+              if (levelUpChannelId && levelUpChannelId.trim() !== '') {
+                const fetchedChannel = message.guild.channels.cache.get(levelUpChannelId);
                 if (fetchedChannel) {
                   targetChannel = fetchedChannel;
                 }

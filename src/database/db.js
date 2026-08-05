@@ -4,6 +4,19 @@ const logger = require('../utils/logger');
 require('dotenv').config();
 
 const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'golem_db.json');
+const configPath = path.join(process.cwd(), 'config.json');
+
+// Read config.json fresh every time (so edits take effect without restart)
+function getConfig() {
+  try {
+    if (fs.existsSync(configPath)) {
+      return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    }
+  } catch (e) {
+    logger.error(`Failed to read config.json: ${e.message}`);
+  }
+  return {};
+}
 
 // Memory cache for database content
 let data = {
@@ -55,11 +68,14 @@ function init() {
 
 // Settings Cache
 function getGuildSettings(guildId) {
+  // Always merge config.json values on top of whatever is in the database
+  const config = getConfig();
+
   if (!data.guild_settings[guildId]) {
     const defaultConfig = require('../config/default');
     const defaults = defaultConfig.defaultSettings;
     const allModules = [
-      'moderation', 'automod', 'logging', 'welcome', 'roles', 
+      'moderation', 'automod', 'logging', 'welcome', 'roles',
       'tickets', 'suggestions', 'giveaways', 'leveling', 'minecraft', 'utility', 'starboard'
     ];
 
@@ -85,8 +101,6 @@ function getGuildSettings(guildId) {
       ticket_category: defaults.ticketCategory,
       ticket_logs_channel: defaults.ticketLogsChannel,
       leveling_enabled: defaults.levelingEnabled,
-      leveling_message_channel: null, // Where level up messages are sent
-      command_channel: null, // If set, bot commands only work here
       minecraft_enabled: defaults.minecraftEnabled,
       minecraft_ip: defaults.minecraftIp,
       minecraft_port: defaults.minecraftPort,
@@ -94,7 +108,22 @@ function getGuildSettings(guildId) {
     };
     save();
   }
-  return data.guild_settings[guildId];
+
+  const settings = data.guild_settings[guildId];
+
+  // Overlay config.json channels and prefix on top of the database values
+  if (config.channels) {
+    if (config.channels.logs)         settings.logging_channel   = config.channels.logs;
+    if (config.channels.welcome)      settings.welcome_channel   = config.channels.welcome;
+    if (config.channels.goodbye)      settings.goodbye_channel   = config.channels.goodbye;
+    if (config.channels.suggestions)  settings.suggestion_channel = config.channels.suggestions;
+    if (config.channels.tickets)      settings.ticket_logs_channel = config.channels.tickets;
+  }
+  if (config.guild && config.guild.prefix) {
+    settings.prefix = config.guild.prefix;
+  }
+
+  return settings;
 }
 
 function updateGuildSettings(guildId, key, value) {
@@ -104,6 +133,12 @@ function updateGuildSettings(guildId, key, value) {
 }
 
 function isModuleEnabled(guildId, moduleName) {
+  // Read from config.json first — it is the source of truth
+  const config = getConfig();
+  if (config.modules && config.modules.hasOwnProperty(moduleName)) {
+    return config.modules[moduleName] === true;
+  }
+  // Fallback to database if somehow not in config
   const settings = getGuildSettings(guildId);
   if (!settings) return false;
   try {
