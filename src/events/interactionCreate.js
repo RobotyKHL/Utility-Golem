@@ -26,21 +26,28 @@ module.exports = {
         }
       }
 
-      // Command Channel check (skip for moderation commands and admins)
-      if (guildId) {
-        const settings = db.getGuildSettings(guildId);
-        if (settings.command_channel && command.module !== 'moderation' && command.module !== 'tickets') {
-          if (interaction.channelId !== settings.command_channel) {
-            // Check if user has administrator permission to bypass
-            const hasAdmin = interaction.memberPermissions?.has('Administrator');
-            if (!hasAdmin) {
-              return interaction.reply({
-                content: `Commands can only be used in <#${settings.command_channel}>.`,
-                flags: 64
-              });
+      // Channel Restrictions Check
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const configPath = path.join(__dirname, '../../config.json');
+        if (fs.existsSync(configPath)) {
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          if (config.commandChannels && config.commandChannels[command.data.name]) {
+            const allowedChannels = config.commandChannels[command.data.name];
+            if (Array.isArray(allowedChannels) && allowedChannels.length > 0) {
+              if (!allowedChannels.includes(interaction.channelId)) {
+                const channelsMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
+                return interaction.reply({
+                  content: `This command can only be used in: ${channelsMentions}`,
+                  flags: 64
+                });
+              }
             }
           }
         }
+      } catch (err) {
+        logger.error(`Error reading config.json: ${err.message}`);
       }
 
       // Check Command Cooldowns
