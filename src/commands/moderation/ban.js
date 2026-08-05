@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, Routes } = require('discord.js');
 const db = require('../../database/db');
 const { createEmbed } = require('../../utils/embedBuilder');
 
@@ -12,15 +12,8 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 
   async execute(interaction) {
-    // Use inGuild() — works even when guild object isn't cached
     if (!interaction.inGuild()) {
       return interaction.reply({ content: 'This command can only be used inside a server.', flags: 64 });
-    }
-
-    // Fetch guild if not cached
-    const guild = interaction.guild ?? await interaction.client.guilds.fetch(interaction.guildId).catch(() => null);
-    if (!guild) {
-      return interaction.reply({ content: 'Could not load server data. Please try again.', flags: 64 });
     }
 
     const user   = interaction.options.getUser('user');
@@ -29,23 +22,22 @@ module.exports = {
     if (user.id === interaction.user.id)        return interaction.reply({ content: 'You cannot ban yourself.', flags: 64 });
     if (user.id === interaction.client.user.id) return interaction.reply({ content: 'I cannot ban myself.', flags: 64 });
 
-    const member = await guild.members.fetch(user.id).catch(() => null);
-
-    if (member) {
-      if (!member.bannable) {
-        return interaction.reply({ content: 'I cannot ban this user — my role may be too low.', flags: 64 });
-      }
-      const execMember = await guild.members.fetch(interaction.user.id).catch(() => null);
-      if (execMember && member.roles.highest.position >= execMember.roles.highest.position) {
-        return interaction.reply({ content: 'You cannot ban someone with an equal or higher role.', flags: 64 });
-      }
-    }
+    await interaction.deferReply();
 
     try {
-      await guild.members.ban(user, { reason: `${interaction.user.tag}: ${reason}` });
-      db.addModLog(guild.id, user.id, interaction.user.id, 'BAN', reason);
+      // Use REST API directly — no guild object or cache needed
+      await interaction.client.rest.put(
+        Routes.guildBan(interaction.guildId, user.id),
+        {
+          body: { delete_message_days: 0 },
+          reason: `${interaction.user.tag}: ${reason}`
+        }
+      );
 
-      return interaction.reply({
+      // Log the action
+      try { db.addModLog(interaction.guildId, user.id, interaction.user.id, 'BAN', reason); } catch (_) {}
+
+      return interaction.editReply({
         embeds: [createEmbed({
           title: '🔨 User Banned',
           description: `Successfully banned **${user.tag}**\n**Reason:** ${reason}`,
@@ -54,9 +46,12 @@ module.exports = {
         })]
       });
     } catch (err) {
-      return interaction.reply({
-        embeds: [createEmbed({ title: 'Ban Failed', description: `\`${err.message}\``, color: '#ff4757' })],
-        flags: 64
+      const msg = err.status === 403 ? "I don't have permission to ban this user."
+                : err.status === 404 ? "That user was not found in this server."
+                : `Ban failed: \`${err.message}\``;
+
+      return interaction.editReply({
+        embeds: [createEmbed({ title: 'Ban Failed', description: msg, color: '#ff4757' })],
       });
     }
   }
