@@ -39,6 +39,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
+// Serve the dashboard at root
+app.use('/dashboard', express.static(path.join(__dirname, '..', 'dashboard')));
+app.get('/', (req, res) => {
+  res.redirect('/dashboard');
+});
+
+
 // API Auth Middleware
 const apiAuth = (req, res, next) => {
   const apiKey = req.headers['authorization'];
