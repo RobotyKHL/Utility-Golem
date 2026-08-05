@@ -38,12 +38,15 @@ module.exports = {
             
             // If the array is empty, it means no restriction (allowed everywhere)
             // If it has IDs, check if the current channel is one of them
-            if (allowedChannels.length > 0 && !allowedChannels.includes(interaction.channelId)) {
-              const channelsList = allowedChannels.map(id => `<#${id}>`).join(', ');
-              return interaction.reply({
-                content: `This command can only be used in the following channel(s): ${channelsList}`,
-                flags: 64
-              });
+            if (allowedChannels.length > 0) {
+              const stringChannels = allowedChannels.map(id => String(id).trim());
+              if (!stringChannels.includes(interaction.channelId)) {
+                const channelsList = stringChannels.map(id => `<#${id}>`).join(', ');
+                return interaction.reply({
+                  content: `This command can only be used in the following channel(s): ${channelsList}`,
+                  flags: 64
+                });
+              }
             }
           }
         }
