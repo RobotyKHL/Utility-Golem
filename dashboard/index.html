@@ -26,6 +26,23 @@
       --glow:      rgba(255,255,255,0.03);
     }
 
+    [data-theme="golem"] {
+      --bg:        #1d1512;
+      --surface:   #2c201a;
+      --card:      #35261f;
+      --card2:     #423226;
+      --border:    #5a4538;
+      --accent:    #9d0a1b;
+      --accent-fg: #ffffff;
+      --accent2:   #b71c1c;
+      --green:     #10b981;
+      --red:       #ef4444;
+      --yellow:    #f59e0b;
+      --text:      #e2d4c5;
+      --muted:     #c5b09e;
+      --glow:      rgba(157,10,27,0.1);
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
@@ -580,6 +597,11 @@
         <span id="status-text" style="font-size:13px; font-weight:600;">Connected</span>
       </div>
       <div style="margin-top:8px;">
+        <a class="nav-item" onclick="toggleTheme()" style="color:var(--text);">
+          <span class="nav-icon">🎨</span> Toggle Theme
+        </a>
+      </div>
+      <div style="margin-top:2px;">
         <a class="nav-item" onclick="logout()" style="color:var(--red);">
           <span class="nav-icon">🚪</span> Disconnect
         </a>
@@ -767,6 +789,20 @@
   let API_URL = '';
   let API_KEY = '';
   let GUILD_ID = '';
+  let currentTheme = localStorage.getItem('golem_theme') || 'monochrome';
+
+  // Apply saved theme on load
+  if (currentTheme === 'golem') document.body.setAttribute('data-theme', 'golem');
+
+  function toggleTheme() {
+    currentTheme = currentTheme === 'monochrome' ? 'golem' : 'monochrome';
+    if (currentTheme === 'golem') {
+      document.body.setAttribute('data-theme', 'golem');
+    } else {
+      document.body.removeAttribute('data-theme');
+    }
+    localStorage.setItem('golem_theme', currentTheme);
+  }
 
   const MODULES = [
     { key: 'moderation',  label: 'Moderation',  emoji: '🛡️', desc: 'Ban, kick, warn, mute...' },
