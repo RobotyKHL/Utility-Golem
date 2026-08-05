@@ -1,4 +1,6 @@
 const { Collection, EmbedBuilder } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 const db = require('../database/db');
 const logger = require('../utils/logger');
 const { createEmbed } = require('../utils/embedBuilder');
@@ -26,28 +28,27 @@ module.exports = {
         }
       }
 
-      // Channel Restrictions Check
+      // Check command channel restrictions via config.json
       try {
-        const fs = require('fs');
-        const path = require('path');
-        const configPath = path.join(__dirname, '../../config.json');
+        const configPath = path.join(process.cwd(), 'config.json');
         if (fs.existsSync(configPath)) {
           const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
           if (config.commandChannels && config.commandChannels[command.data.name]) {
             const allowedChannels = config.commandChannels[command.data.name];
-            if (Array.isArray(allowedChannels) && allowedChannels.length > 0) {
-              if (!allowedChannels.includes(interaction.channelId)) {
-                const channelsMentions = allowedChannels.map(id => `<#${id}>`).join(', ');
-                return interaction.reply({
-                  content: `This command can only be used in: ${channelsMentions}`,
-                  flags: 64
-                });
-              }
+            
+            // If the array is empty, it means no restriction (allowed everywhere)
+            // If it has IDs, check if the current channel is one of them
+            if (allowedChannels.length > 0 && !allowedChannels.includes(interaction.channelId)) {
+              const channelsList = allowedChannels.map(id => `<#${id}>`).join(', ');
+              return interaction.reply({
+                content: `This command can only be used in the following channel(s): ${channelsList}`,
+                flags: 64
+              });
             }
           }
         }
-      } catch (err) {
-        logger.error(`Error reading config.json: ${err.message}`);
+      } catch (e) {
+        logger.error(`Error reading config.json for channel restrictions: ${e.message}`);
       }
 
       // Check Command Cooldowns
