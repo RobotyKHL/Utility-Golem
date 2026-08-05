@@ -111,16 +111,20 @@ function getGuildSettings(guildId) {
 
   const settings = data.guild_settings[guildId];
 
-  // Overlay config.json channels and prefix on top of the database values
-  if (config.channels) {
-    if (config.channels.logs)         settings.logging_channel   = config.channels.logs;
-    if (config.channels.welcome)      settings.welcome_channel   = config.channels.welcome;
-    if (config.channels.goodbye)      settings.goodbye_channel   = config.channels.goodbye;
-    if (config.channels.suggestions)  settings.suggestion_channel = config.channels.suggestions;
-    if (config.channels.tickets)      settings.ticket_logs_channel = config.channels.tickets;
-  }
-  if (config.guild && config.guild.prefix) {
-    settings.prefix = config.guild.prefix;
+  // Safely overlay config.json channels and prefix on top of the database values
+  try {
+    if (config.channels) {
+      if (config.channels.logs)         settings.logging_channel     = config.channels.logs;
+      if (config.channels.welcome)      settings.welcome_channel     = config.channels.welcome;
+      if (config.channels.goodbye)      settings.goodbye_channel     = config.channels.goodbye;
+      if (config.channels.suggestions)  settings.suggestion_channel  = config.channels.suggestions;
+      if (config.channels.tickets)      settings.ticket_logs_channel = config.channels.tickets;
+    }
+    if (config.guild && config.guild.prefix) {
+      settings.prefix = config.guild.prefix;
+    }
+  } catch (e) {
+    logger.error(`Error applying config.json overrides: ${e.message}`);
   }
 
   return settings;
