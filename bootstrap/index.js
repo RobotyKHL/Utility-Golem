@@ -52,8 +52,23 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
     // Extract tar.gz
     run(`tar -xzf "${TMP_TAR}" -C /tmp/`);
 
+    // Back up user's config.json before overwriting
+    const configDest = path.join(CONTAINER, 'config.json');
+    const configBackup = path.join(CONTAINER, 'config.json.bak');
+    if (fileExists(configDest)) {
+      fs.copyFileSync(configDest, configBackup);
+      console.log('[Golem] config.json backed up.');
+    }
+
     // Copy extracted files to container (overwrite)
     run(`cp -r "${TMP_DIR}/." "${CONTAINER}/"`);
+
+    // Restore user's config.json if it was backed up
+    if (fileExists(configBackup)) {
+      fs.copyFileSync(configBackup, configDest);
+      fs.unlinkSync(configBackup);
+      console.log('[Golem] config.json restored — your settings are safe!');
+    }
 
     // Clean up
     run(`rm -rf "${TMP_TAR}" "${TMP_DIR}"`);
