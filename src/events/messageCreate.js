@@ -104,7 +104,7 @@ module.exports = {
           .replace(/{server}/g, message.guild.name)
           .replace(/{membercount}/g, message.guild.memberCount);
 
-        if (cmd.is_embed === 1) {
+        if (cmd.is_embed === 1 || cmd.is_embed === true || cmd.is_embed === '1') {
           return message.reply({
             embeds: [createEmbed({
               description: response
