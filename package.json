@@ -4,9 +4,9 @@
   "description": "Golem - Discord Server Guardian",
   "main": "src/index.js",
   "scripts": {
-    "start": "bash start.sh",
+    "start": "node src/index.js",
     "dev": "node src/index.js",
-    "bot": "node src/index.js"
+    "setup": "bash start.sh"
   },
   "dependencies": {
     "discord.js": "^14.15.3",
