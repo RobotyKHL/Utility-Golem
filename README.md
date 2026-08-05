@@ -21,21 +21,55 @@ Golem is a custom, modular Discord server management bot built on Node.js, disco
 
 ## ⚙️ Configuration System (`config.json`)
 
-Golem features a manual configuration file that automatically generates in your root directory. It allows you to:
-- Route Level Up messages to a specific channel.
-- Restrict specific slash commands (like `/level` or `/giveaway`) so they can only be used in specific channels.
+After the bot first starts, a `config.json` file will be available in your root directory. This is the **single source of truth** for all bot configuration. Edit it directly in the Pterodactyl File Manager.
 
-**Example `config.json`:**
+> **Important:** All channel IDs must be wrapped in double quotes `" "` to prevent Discord ID corruption.
+
+**Full `config.json` schema:**
 ```json
 {
-  "levelUpChannel": "123456789012345678",
+  "bot": {
+    "name": "Golem",
+    "version": "1.0.0",
+    "defaultLanguage": "en"
+  },
+  "guild": {
+    "id": "YOUR_SERVER_ID",
+    "prefix": "g!",
+    "embedColor": "#5865F2"
+  },
+  "channels": {
+    "logs":        "CHANNEL_ID",
+    "welcome":     "CHANNEL_ID",
+    "goodbye":     "CHANNEL_ID",
+    "levelUp":     "CHANNEL_ID",
+    "suggestions": "CHANNEL_ID",
+    "tickets":     "CHANNEL_ID"
+  },
   "commandChannels": {
-    "level": ["102837461928374", "987654321098765"],
-    "giveaway": ["123456789012345678"]
+    "level":    ["CHANNEL_ID", "CHANNEL_ID_2"],
+    "giveaway": ["CHANNEL_ID"]
+  },
+  "modules": {
+    "moderation":  true,
+    "automod":     false,
+    "logging":     true,
+    "welcome":     true,
+    "leveling":    true,
+    "tickets":     true,
+    "suggestions": true,
+    "giveaways":   true,
+    "starboard":   false,
+    "minecraft":   true,
+    "utility":     true
   }
 }
 ```
-*Note: Make sure channel IDs are wrapped in double quotes `" "` to prevent Discord ID corruption! Commands not listed in this file will work in all channels.*
+
+**How it works:**
+- **`channels`** — Set where the bot sends Level Up messages, welcome messages, and mod logs.
+- **`commandChannels`** — Restrict a slash command to specific channels only. Leave the array empty `[]` to allow it everywhere.
+- **`modules`** — Set `true` or `false` to enable or disable any feature. No restart needed for channel or module changes!
 
 ---
 
