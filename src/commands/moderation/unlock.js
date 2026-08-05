@@ -24,7 +24,7 @@ module.exports = {
         })]
       });
     } catch (err) {
-      return interaction.reply({ content: `Failed to unlock channel: ${err.message}`, ephemeral: true });
+      return interaction.reply({ content: `Failed to unlock channel: ${err.message}`, flags: 64 });
     }
   }
 };

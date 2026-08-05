@@ -152,7 +152,7 @@ module.exports = {
       const fullUser = await interaction.client.users.fetch(user.id, { force: true });
       
       if (!fullUser.bannerURL()) {
-        return interaction.reply({ content: "This user does not have a profile banner set.", ephemeral: true });
+        return interaction.reply({ content: "This user does not have a profile banner set.", flags: 64 });
       }
 
       return interaction.reply({

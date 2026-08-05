@@ -43,7 +43,7 @@ module.exports = {
         components: [row]
       });
 
-      return interaction.reply({ content: `Successfully sent ticket panel to ${channel}!`, ephemeral: true });
+      return interaction.reply({ content: `Successfully sent ticket panel to ${channel}!`, flags: 64 });
     }
 
     if (subcommand === 'config') {

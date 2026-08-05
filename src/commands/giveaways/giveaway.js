@@ -71,7 +71,7 @@ module.exports = {
         winners: '[]'
       });
 
-      return interaction.reply({ content: `Giveaway started in ${channel}!`, ephemeral: true });
+      return interaction.reply({ content: `Giveaway started in ${channel}!`, flags: 64 });
     }
 
     if (subcommand === 'end') {
@@ -79,11 +79,11 @@ module.exports = {
       const giveaway = db.getGiveaway(id);
 
       if (!giveaway) {
-        return interaction.reply({ content: "Giveaway not found.", ephemeral: true });
+        return interaction.reply({ content: "Giveaway not found.", flags: 64 });
       }
 
       if (giveaway.ended === 1) {
-        return interaction.reply({ content: "That giveaway has already ended.", ephemeral: true });
+        return interaction.reply({ content: "That giveaway has already ended.", flags: 64 });
       }
 
       // End it immediately
@@ -97,11 +97,11 @@ module.exports = {
       const giveaway = db.getGiveaway(id);
 
       if (!giveaway) {
-        return interaction.reply({ content: "Giveaway not found.", ephemeral: true });
+        return interaction.reply({ content: "Giveaway not found.", flags: 64 });
       }
 
       if (giveaway.ended === 0) {
-        return interaction.reply({ content: "That giveaway hasn't ended yet.", ephemeral: true });
+        return interaction.reply({ content: "That giveaway hasn't ended yet.", flags: 64 });
       }
 
       const giveawayManager = require('../../modules/giveaways/giveawayManager');

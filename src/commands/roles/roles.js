@@ -55,7 +55,7 @@ module.exports = {
         components: [row]
       });
 
-      return interaction.reply({ content: `Successfully sent Button Role panel to ${channel}!`, ephemeral: true });
+      return interaction.reply({ content: `Successfully sent Button Role panel to ${channel}!`, flags: 64 });
     }
 
     if (subcommand === 'select') {
@@ -77,7 +77,7 @@ module.exports = {
       }
 
       if (selectMenuOptions.length === 0) {
-        return interaction.reply({ content: "No valid role IDs found. Double check your input.", ephemeral: true });
+        return interaction.reply({ content: "No valid role IDs found. Double check your input.", flags: 64 });
       }
 
       const selectMenu = new StringSelectMenuBuilder()
@@ -98,7 +98,7 @@ module.exports = {
         components: [row]
       });
 
-      return interaction.reply({ content: `Successfully sent Select Menu Role panel to ${channel}!`, ephemeral: true });
+      return interaction.reply({ content: `Successfully sent Select Menu Role panel to ${channel}!`, flags: 64 });
     }
 
     if (subcommand === 'verify') {
@@ -119,7 +119,7 @@ module.exports = {
         components: [row]
       });
 
-      return interaction.reply({ content: `Successfully sent Verification panel to ${channel}!`, ephemeral: true });
+      return interaction.reply({ content: `Successfully sent Verification panel to ${channel}!`, flags: 64 });
     }
   }
 };

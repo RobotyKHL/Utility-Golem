@@ -12,17 +12,19 @@ module.exports = {
     .addStringOption(option => option.setName('reason').setDescription('The reason for timeout'))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
   async execute(interaction) {
+    if (!interaction.guild) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+
     const user = interaction.options.getUser('user');
     const duration = interaction.options.getInteger('duration');
     const reason = interaction.options.getString('reason') || 'No reason provided';
-    const member = interaction.guild.members.cache.get(user.id);
+    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
 
     if (!member) {
-      return interaction.reply({ content: "That user is not in the server.", ephemeral: true });
+      return interaction.reply({ content: "That user is not in the server.", flags: 64 });
     }
 
     if (!member.moderatable) {
-      return interaction.reply({ content: "I cannot moderate this member.", ephemeral: true });
+      return interaction.reply({ content: "I cannot moderate this member.", flags: 64 });
     }
 
     await member.timeout(duration * 60 * 1000, reason);

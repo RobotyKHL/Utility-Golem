@@ -22,7 +22,7 @@ module.exports = {
         })]
       });
     } catch (error) {
-      return interaction.reply({ content: "Failed to unban user. Make sure the ID is correct and they are banned.", ephemeral: true });
+      return interaction.reply({ content: "Failed to unban user. Make sure the ID is correct and they are banned.", flags: 64 });
     }
   }
 };

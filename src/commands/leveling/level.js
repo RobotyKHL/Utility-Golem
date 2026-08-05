@@ -38,7 +38,7 @@ module.exports = {
     if (subcommand === 'rank') {
       const user = interaction.options.getUser('user') || interaction.user;
       if (user.bot) {
-        return interaction.reply({ content: "Bots do not gain XP or levels.", ephemeral: true });
+        return interaction.reply({ content: "Bots do not gain XP or levels.", flags: 64 });
       }
 
       const userStats = db.getUserLevel(guildId, user.id);
@@ -98,7 +98,7 @@ module.exports = {
     // Role reward management (requires admin)
     if (subcommand === 'reward-add') {
       if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-        return interaction.reply({ content: "You need Administrator permissions to configure rewards.", ephemeral: true });
+        return interaction.reply({ content: "You need Administrator permissions to configure rewards.", flags: 64 });
       }
       
       const level = interaction.options.getInteger('level');
@@ -111,7 +111,7 @@ module.exports = {
 
     if (subcommand === 'reward-remove') {
       if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-        return interaction.reply({ content: "You need Administrator permissions to configure rewards.", ephemeral: true });
+        return interaction.reply({ content: "You need Administrator permissions to configure rewards.", flags: 64 });
       }
 
       const level = interaction.options.getInteger('level');

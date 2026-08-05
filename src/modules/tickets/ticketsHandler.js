@@ -8,7 +8,7 @@ async function handleInteraction(interaction) {
   const settings = db.getGuildSettings(guild.id);
 
   if (customId === 'ticket_create') {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     // Find if user already has an active ticket
     const activeTickets = db.getAllTickets(guild.id).filter(t => t.user_id === user.id && t.closed === 0);
@@ -72,10 +72,10 @@ async function handleInteraction(interaction) {
 
   if (customId === 'ticket_claim') {
     const ticket = db.getTicket(channel.id);
-    if (!ticket) return interaction.reply({ content: "Ticket details not found.", ephemeral: true });
+    if (!ticket) return interaction.reply({ content: "Ticket details not found.", flags: 64 });
 
     if (ticket.claimed_by) {
-      return interaction.reply({ content: `Ticket is already claimed by <@${ticket.claimed_by}>.`, ephemeral: true });
+      return interaction.reply({ content: `Ticket is already claimed by <@${ticket.claimed_by}>.`, flags: 64 });
     }
 
     // Set permission for staff member
@@ -98,7 +98,7 @@ async function handleInteraction(interaction) {
 
   if (customId === 'ticket_close') {
     const ticket = db.getTicket(channel.id);
-    if (!ticket) return interaction.reply({ content: "Ticket details not found.", ephemeral: true });
+    if (!ticket) return interaction.reply({ content: "Ticket details not found.", flags: 64 });
 
     await interaction.reply({ content: "Closing ticket in 5 seconds..." });
 

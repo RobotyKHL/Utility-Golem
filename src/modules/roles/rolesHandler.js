@@ -5,7 +5,7 @@ async function handleInteraction(interaction) {
   
   // 1. Verification Role
   if (customId === 'verify_join') {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     // Look for a role named "Verified"
     let role = guild.roles.cache.find(r => r.name.toLowerCase() === 'verified');
@@ -35,7 +35,7 @@ async function handleInteraction(interaction) {
 
   // 2. Button Role (Toggles)
   if (customId.startsWith('role_add_')) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
     const roleId = customId.split('role_add_')[1];
     const role = guild.roles.cache.get(roleId);
 
@@ -58,7 +58,7 @@ async function handleInteraction(interaction) {
 
   // 3. Select Menu Role
   if (customId === 'role_select') {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
     const selectedValues = interaction.values; // Array of role IDs chosen
     
     // We can parse all options from the select menu itself to see what roles they could have selected

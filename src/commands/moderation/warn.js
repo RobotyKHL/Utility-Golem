@@ -15,7 +15,7 @@ module.exports = {
     const reason = interaction.options.getString('reason');
 
     if (user.bot) {
-      return interaction.reply({ content: "You cannot warn a bot.", ephemeral: true });
+      return interaction.reply({ content: "You cannot warn a bot.", flags: 64 });
     }
 
     db.addWarning(interaction.guild.id, user.id, interaction.user.id, reason);

@@ -35,7 +35,7 @@ module.exports = {
 
       // Prevent overwriting built-in commands
       if (interaction.client.commands.has(name)) {
-        return interaction.reply({ content: `\`/${name}\` is a built-in command and cannot be overwritten.`, ephemeral: true });
+        return interaction.reply({ content: `\`/${name}\` is a built-in command and cannot be overwritten.`, flags: 64 });
       }
 
       db.saveCustomCommand(guildId, name, response, isEmbed);
@@ -63,7 +63,7 @@ module.exports = {
       if (deleted) {
         return interaction.reply({ content: `Successfully deleted custom command \`${name}\`.` });
       } else {
-        return interaction.reply({ content: `Custom command \`${name}\` not found on this server.`, ephemeral: true });
+        return interaction.reply({ content: `Custom command \`${name}\` not found on this server.`, flags: 64 });
       }
     }
 

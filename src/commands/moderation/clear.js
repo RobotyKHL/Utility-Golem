@@ -25,10 +25,10 @@ module.exports = {
           description: `Successfully cleared **${messages.size}** messages.`,
           color: '#2ed573'
         })],
-        ephemeral: true
+        flags: 64
       });
     }).catch(err => {
-      return interaction.reply({ content: `Failed to delete messages: ${err.message}`, ephemeral: true });
+      return interaction.reply({ content: `Failed to delete messages: ${err.message}`, flags: 64 });
     });
   }
 };

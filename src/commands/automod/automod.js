@@ -112,12 +112,12 @@ module.exports = {
       }
 
       if (!word) {
-        return interaction.reply({ content: "You must provide a word for add/remove actions.", ephemeral: true });
+        return interaction.reply({ content: "You must provide a word for add/remove actions.", flags: 64 });
       }
 
       if (action === 'add') {
         if (words.includes(word.toLowerCase())) {
-          return interaction.reply({ content: `\`${word}\` is already in the bad words list.`, ephemeral: true });
+          return interaction.reply({ content: `\`${word}\` is already in the bad words list.`, flags: 64 });
         }
         words.push(word.toLowerCase());
         db.updateAutomodSettings(guildId, 'bad_words', JSON.stringify(words));
@@ -126,7 +126,7 @@ module.exports = {
 
       if (action === 'remove') {
         if (!words.includes(word.toLowerCase())) {
-          return interaction.reply({ content: `\`${word}\` is not in the bad words list.`, ephemeral: true });
+          return interaction.reply({ content: `\`${word}\` is not in the bad words list.`, flags: 64 });
         }
         words = words.filter(w => w !== word.toLowerCase());
         db.updateAutomodSettings(guildId, 'bad_words', JSON.stringify(words));

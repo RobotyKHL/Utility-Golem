@@ -11,16 +11,18 @@ module.exports = {
     .addStringOption(option => option.setName('reason').setDescription('The reason for kicking'))
     .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
   async execute(interaction) {
+    if (!interaction.guild) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+
     const user = interaction.options.getUser('user');
     const reason = interaction.options.getString('reason') || 'No reason provided';
-    const member = interaction.guild.members.cache.get(user.id);
+    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
 
     if (!member) {
-      return interaction.reply({ content: "That user is not in the server.", ephemeral: true });
+      return interaction.reply({ content: "That user is not in the server.", flags: 64 });
     }
 
     if (!member.kickable) {
-      return interaction.reply({ content: "I cannot kick this user.", ephemeral: true });
+      return interaction.reply({ content: "I cannot kick this user.", flags: 64 });
     }
 
     await member.kick(reason);

@@ -25,7 +25,7 @@ module.exports = {
     if (subcommand === 'config') {
       // Admin check
       if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-        return interaction.reply({ content: "You need Administrator permissions to run this config.", ephemeral: true });
+        return interaction.reply({ content: "You need Administrator permissions to run this config.", flags: 64 });
       }
 
       const channel = interaction.options.getChannel('channel');
@@ -37,17 +37,17 @@ module.exports = {
 
     if (subcommand === 'submit') {
       if (settings.suggestion_enabled !== 1 || !settings.suggestion_channel) {
-        return interaction.reply({ content: "The suggestion system is currently disabled on this server.", ephemeral: true });
+        return interaction.reply({ content: "The suggestion system is currently disabled on this server.", flags: 64 });
       }
 
       const content = interaction.options.getString('content');
       const targetChannel = interaction.guild.channels.cache.get(settings.suggestion_channel);
       
       if (!targetChannel) {
-        return interaction.reply({ content: "Suggestion channel not found or misconfigured.", ephemeral: true });
+        return interaction.reply({ content: "Suggestion channel not found or misconfigured.", flags: 64 });
       }
 
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ flags: 64 });
 
       // Build voting buttons
       const row = new ActionRowBuilder().addComponents(

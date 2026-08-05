@@ -21,7 +21,7 @@ module.exports = {
               description: `The **${command.module}** module is disabled on this server. An administrator can enable it via settings.`,
               color: '#ff4757'
             })],
-            ephemeral: true
+            flags: 64
           });
         }
       }
@@ -42,7 +42,7 @@ module.exports = {
           const expiredTimestamp = Math.round(expirationTime / 1000);
           return interaction.reply({
             content: `Please wait, you are on a cooldown for \`/${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`,
-            ephemeral: true
+            flags: 64
           });
         }
       }
@@ -59,9 +59,9 @@ module.exports = {
           color: '#ff4757'
         });
         if (interaction.replied || interaction.deferred) {
-          await interaction.followUp({ embeds: [errorEmbed], ephemeral: true });
+          await interaction.followUp({ embeds: [errorEmbed], flags: 64 });
         } else {
-          await interaction.reply({ embeds: [errorEmbed], ephemeral: true });
+          await interaction.reply({ embeds: [errorEmbed], flags: 64 });
         }
       }
     } else if (interaction.isButton() || interaction.isStringSelectMenu()) {
@@ -91,11 +91,11 @@ module.exports = {
         const giveawayManager = require('../modules/giveaways/giveawayManager');
         const result = giveawayManager.addParticipant(interaction.message.id, interaction.user.id);
         if (result === 'added') {
-          return interaction.reply({ content: "You have entered the giveaway! 🎉", ephemeral: true });
+          return interaction.reply({ content: "You have entered the giveaway! 🎉", flags: 64 });
         } else if (result === 'removed') {
-          return interaction.reply({ content: "You have left the giveaway.", ephemeral: true });
+          return interaction.reply({ content: "You have left the giveaway.", flags: 64 });
         } else {
-          return interaction.reply({ content: "This giveaway is no longer active.", ephemeral: true });
+          return interaction.reply({ content: "This giveaway is no longer active.", flags: 64 });
         }
       }
     }

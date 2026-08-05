@@ -5,7 +5,7 @@ const { PermissionFlagsBits } = require('discord.js');
 async function handleInteraction(interaction) {
   const { customId, user, guild, message } = interaction;
   const suggestion = db.getSuggestion(message.id);
-  if (!suggestion) return interaction.reply({ content: "Suggestion details not found in database.", ephemeral: true });
+  if (!suggestion) return interaction.reply({ content: "Suggestion details not found in database.", flags: 64 });
 
   let upvotes = JSON.parse(suggestion.votes_up || '[]');
   let downvotes = JSON.parse(suggestion.votes_down || '[]');
@@ -27,7 +27,7 @@ async function handleInteraction(interaction) {
   } else if (customId === 'suggest_approve' || customId === 'suggest_deny') {
     // Check permission (Staff only)
     if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-      return interaction.reply({ content: "You do not have permission to approve/deny suggestions.", ephemeral: true });
+      return interaction.reply({ content: "You do not have permission to approve/deny suggestions.", flags: 64 });
     }
 
     const isApprove = customId === 'suggest_approve';
@@ -48,7 +48,7 @@ async function handleInteraction(interaction) {
     });
 
     await message.edit({ embeds: [newEmbed], components: [] });
-    return interaction.reply({ content: `Suggestion has been ${isApprove ? 'approved' : 'denied'}.`, ephemeral: true });
+    return interaction.reply({ content: `Suggestion has been ${isApprove ? 'approved' : 'denied'}.`, flags: 64 });
   }
 
   // Save changes
@@ -72,7 +72,7 @@ async function handleInteraction(interaction) {
   });
 
   await message.edit({ embeds: [newEmbed] });
-  await interaction.reply({ content: "Vote updated!", ephemeral: true });
+  await interaction.reply({ content: "Vote updated!", flags: 64 });
 }
 
 module.exports = { handleInteraction };

@@ -24,7 +24,7 @@ module.exports = {
         })]
       });
     } catch (err) {
-      return interaction.reply({ content: `Failed to lock channel: ${err.message}`, ephemeral: true });
+      return interaction.reply({ content: `Failed to lock channel: ${err.message}`, flags: 64 });
     }
   }
 };
