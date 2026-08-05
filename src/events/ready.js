@@ -8,8 +8,8 @@ module.exports = {
     
     // Set Bot Activity
     client.user.setActivity({
-      name: 'over the server | /help',
-      type: 3 // Watching
+      name: 'Server Guardian | /help',
+      type: 0 // Playing
     });
 
     // Start Giveaway Scheduler
