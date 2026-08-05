@@ -1,0 +1,71 @@
+const db = require('../database/db');
+const { createEmbed } = require('../utils/embedBuilder');
+const logger = require('../utils/logger');
+
+module.exports = {
+  name: 'guildMemberAdd',
+  async execute(member, client) {
+    const guildId = member.guild.id;
+    const settings = db.getGuildSettings(guildId);
+
+    // 1. Welcome Message
+    if (db.isModuleEnabled(guildId, 'welcome') && settings.welcome_enabled === 1 && settings.welcome_channel) {
+      const channel = member.guild.channels.cache.get(settings.welcome_channel);
+      if (channel) {
+        let msg = settings.welcome_message || "Welcome {user} to {server}!";
+        msg = msg
+          .replace(/{user}/g, member.toString())
+          .replace(/{username}/g, member.user.username)
+          .replace(/{server}/g, member.guild.name)
+          .replace(/{membercount}/g, member.guild.memberCount);
+
+        const embed = createEmbed({
+          title: `Welcome to ${member.guild.name}!`,
+          description: msg,
+          thumbnail: member.user.displayAvatarURL({ dynamic: true })
+        });
+        
+        channel.send({ embeds: [embed] }).catch(err => {
+          logger.error(`Welcome message failed to send: ${err.message}`);
+        });
+      }
+    }
+
+    // 2. Auto Role Assignment
+    if (db.isModuleEnabled(guildId, 'welcome') && settings.autorole_enabled === 1 && settings.autoroles) {
+      try {
+        const roles = JSON.parse(settings.autoroles);
+        for (const roleId of roles) {
+          const role = member.guild.roles.cache.get(roleId);
+          if (role) {
+            await member.roles.add(role).catch(err => {
+              logger.error(`AutoRole addition failed for ${role.name}: ${err.message}`);
+            });
+          }
+        }
+      } catch (err) {
+        logger.error(`Failed parsing autoroles for guild ${guildId}: ${err.message}`);
+      }
+    }
+
+    // 3. Member Join Log
+    if (db.isModuleEnabled(guildId, 'logging') && settings.logging_enabled === 1 && settings.logging_channel) {
+      try {
+        const events = JSON.parse(settings.log_events || '{}');
+        if (events.memberJoin) {
+          const logChannel = member.guild.channels.cache.get(settings.logging_channel);
+          if (logChannel) {
+            logChannel.send({
+              embeds: [createEmbed({
+                title: "Member Joined",
+                description: `${member.user} (${member.user.tag}) has joined the server.\nID: ${member.user.id}`,
+                color: '#2ed573',
+                thumbnail: member.user.displayAvatarURL({ dynamic: true })
+              })]
+            }).catch(() => {});
+          }
+        }
+      } catch (err) {}
+    }
+  }
+};

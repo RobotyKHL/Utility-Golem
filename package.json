@@ -1,0 +1,15 @@
+{
+  "name": "golem-bot",
+  "version": "1.0.0",
+  "description": "Golem - Discord Server Guardian",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}
