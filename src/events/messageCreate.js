@@ -64,24 +64,25 @@ module.exports = {
             color: '#2ed573'
           });
 
-          let targetChannel = message.channel;
+          let targetChannel = null;
           try {
             const configPath = path.join(process.cwd(), 'config.json');
             if (fs.existsSync(configPath)) {
               const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
               const levelUpChannelId = (config.channels && config.channels.levelUp) || config.levelUpChannel || '';
               if (levelUpChannelId && levelUpChannelId.trim() !== '') {
-                const fetchedChannel = message.guild.channels.cache.get(levelUpChannelId);
-                if (fetchedChannel) {
-                  targetChannel = fetchedChannel;
-                }
+                const fetchedChannel = message.guild.channels.cache.get(levelUpChannelId.trim());
+                if (fetchedChannel) targetChannel = fetchedChannel;
               }
             }
           } catch (e) {
-            // Ignore config read errors and default to message.channel
+            // Ignore config read errors
           }
 
-          targetChannel.send({ embeds: [embed] }).catch(() => {});
+          // Only send if a dedicated channel is configured
+          if (targetChannel) {
+            targetChannel.send({ embeds: [embed] }).catch(() => {});
+          }
         }
       }
     }

@@ -1,5 +1,18 @@
 const { EmbedBuilder } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 const config = require('../config/default.js');
+
+function getEmbedColor() {
+  try {
+    const cfgPath = path.join(process.cwd(), 'config.json');
+    if (fs.existsSync(cfgPath)) {
+      const cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
+      if (cfg.guild && cfg.guild.embedColor) return cfg.guild.embedColor;
+    }
+  } catch (_) {}
+  return config.branding.color;
+}
 
 /**
  * Creates a standardized Golem-branded embed
@@ -24,7 +37,7 @@ function createEmbed({
   timestamp = true
 } = {}) {
   const embed = new EmbedBuilder()
-    .setColor(color || config.branding.color)
+    .setColor(color || getEmbedColor())
     .setFooter({ text: config.branding.footer });
 
   if (title) embed.setTitle(title);
