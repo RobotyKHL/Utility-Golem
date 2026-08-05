@@ -52,22 +52,34 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
     // Extract tar.gz
     run(`tar -xzf "${TMP_TAR}" -C /tmp/`);
 
-    // Back up user's config.json before overwriting
-    const configDest = path.join(CONTAINER, 'config.json');
+    // Back up user's config.json and .env before overwriting
+    const configDest  = path.join(CONTAINER, 'config.json');
     const configBackup = path.join(CONTAINER, 'config.json.bak');
+    const envDest      = path.join(CONTAINER, '.env');
+    const envBackup    = path.join(CONTAINER, '.env.bak');
+
     if (fileExists(configDest)) {
       fs.copyFileSync(configDest, configBackup);
       console.log('[Golem] config.json backed up.');
+    }
+    if (fileExists(envDest)) {
+      fs.copyFileSync(envDest, envBackup);
+      console.log('[Golem] .env backed up.');
     }
 
     // Copy extracted files to container (overwrite)
     run(`cp -r "${TMP_DIR}/." "${CONTAINER}/"`);
 
-    // Restore user's config.json if it was backed up
+    // Restore user's config.json and .env
     if (fileExists(configBackup)) {
       fs.copyFileSync(configBackup, configDest);
       fs.unlinkSync(configBackup);
       console.log('[Golem] config.json restored — your settings are safe!');
+    }
+    if (fileExists(envBackup)) {
+      fs.copyFileSync(envBackup, envDest);
+      fs.unlinkSync(envBackup);
+      console.log('[Golem] .env restored — your credentials are safe!');
     }
 
     // Clean up
