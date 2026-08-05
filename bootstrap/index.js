@@ -14,9 +14,9 @@ const { execSync, spawn } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
 
-const REPO_ZIP  = 'https://github.com/wayback09/Utility-Golem-/archive/refs/heads/main.zip';
+const REPO_ZIP  = 'https://github.com/wayback09/Utility-Golem-/archive/refs/heads/main.tar.gz';
 const CONTAINER = '/home/container';
-const TMP_ZIP   = '/tmp/golem.zip';
+const TMP_TAR   = '/tmp/golem.tar.gz';
 const TMP_DIR   = '/tmp/Utility-Golem--main';
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -46,17 +46,17 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
   console.log('');
 
   try {
-    // Download ZIP
-    run(`curl -fsSL "${REPO_ZIP}" -o "${TMP_ZIP}"`);
+    // Download tar.gz (tar is always available on Linux, unlike unzip)
+    run(`curl -fsSL "${REPO_ZIP}" -o "${TMP_TAR}"`);
 
-    // Extract ZIP
-    run(`unzip -q "${TMP_ZIP}" -d /tmp/`);
+    // Extract tar.gz
+    run(`tar -xzf "${TMP_TAR}" -C /tmp/`);
 
     // Copy extracted files to container (overwrite)
     run(`cp -r "${TMP_DIR}/." "${CONTAINER}/"`);
 
     // Clean up
-    run(`rm -rf "${TMP_ZIP}" "${TMP_DIR}"`);
+    run(`rm -rf "${TMP_TAR}" "${TMP_DIR}"`);
 
     console.log('');
     console.log('[Golem] Bot files downloaded successfully!');
