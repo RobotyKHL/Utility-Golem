@@ -60,12 +60,6 @@ module.exports = {
       sub.setName('status')
          .setDescription('Display current server config status')
     )
-    .addSubcommand(sub =>
-      sub.setName('channels')
-         .setDescription('Configure special channels (command-channel, leveling-channel)')
-         .addChannelOption(opt => opt.setName('command').setDescription('Restrict bot commands to this channel').addChannelTypes(ChannelType.GuildText))
-         .addChannelOption(opt => opt.setName('leveling').setDescription('Send level up alerts here').addChannelTypes(ChannelType.GuildText))
-    )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
@@ -155,33 +149,6 @@ module.exports = {
       if (threshold) db.updateGuildSettings(guildId, 'starboard_threshold', threshold);
 
       return interaction.reply({ content: "Starboard configurations saved successfully." });
-    }
-
-    if (subcommand === 'channels') {
-      const commandChannel = interaction.options.getChannel('command');
-      const levelingChannel = interaction.options.getChannel('leveling');
-
-      let response = [];
-      if (commandChannel !== null) {
-        db.updateGuildSettings(guildId, 'command_channel', commandChannel.id);
-        response.push(`Bot commands restricted to ${commandChannel}`);
-      }
-      if (levelingChannel !== null) {
-        db.updateGuildSettings(guildId, 'leveling_message_channel', levelingChannel.id);
-        response.push(`Level-up alerts will be sent to ${levelingChannel}`);
-      }
-
-      if (response.length === 0) {
-        return interaction.reply({ content: "No changes made. You must specify at least one channel to set.", flags: 64 });
-      }
-
-      return interaction.reply({ 
-        embeds: [createEmbed({
-          title: "Channel Configurations Updated",
-          description: response.join("\n"),
-          color: "#2ed573"
-        })] 
-      });
     }
   }
 };
