@@ -10,7 +10,7 @@ module.exports = {
     .addUserOption(option => option.setName('user').setDescription('The user to untimeout').setRequired(true))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
   async execute(interaction) {
-    if (!interaction.guild) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+    if (!interaction.inGuild()) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
 
     const user = interaction.options.getUser('user');
     const member = await interaction.guild.members.fetch(user.id).catch(() => null);

@@ -12,7 +12,7 @@ module.exports = {
     .addStringOption(option => option.setName('reason').setDescription('The reason for timeout'))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
   async execute(interaction) {
-    if (!interaction.guild) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+    if (!interaction.inGuild()) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
 
     const user = interaction.options.getUser('user');
     const duration = interaction.options.getInteger('duration');

@@ -11,11 +11,13 @@ module.exports = {
     .addStringOption(option => option.setName('reason').setDescription('The reason for kicking'))
     .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
   async execute(interaction) {
-    if (!interaction.guild) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+    if (!interaction.inGuild()) return interaction.reply({ content: 'This command can only be used in a server.', flags: 64 });
+    const guild = interaction.guild ?? await interaction.client.guilds.fetch(interaction.guildId).catch(() => null);
+    if (!guild) return interaction.reply({ content: 'Could not load server data.', flags: 64 });
 
     const user = interaction.options.getUser('user');
     const reason = interaction.options.getString('reason') || 'No reason provided';
-    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
+    const member = await guild.members.fetch(user.id).catch(() => null);
 
     if (!member) {
       return interaction.reply({ content: "That user is not in the server.", flags: 64 });
@@ -28,14 +30,14 @@ module.exports = {
     await member.kick(reason);
     
     // Add mod log
-    db.addModLog(interaction.guild.id, user.id, interaction.user.id, 'KICK', reason);
+    db.addModLog(guild.id, user.id, interaction.user.id, 'KICK', reason);
 
     // Logging to channel
-    const settings = db.getGuildSettings(interaction.guild.id);
+    const settings = db.getGuildSettings(guild.id);
     if (settings.logging_enabled === 1 && settings.logging_channel) {
       const events = JSON.parse(settings.log_events || '{}');
       if (events.kick) {
-        const logChannel = interaction.guild.channels.cache.get(settings.logging_channel);
+        const logChannel = guild.channels.cache.get(settings.logging_channel);
         if (logChannel) {
           logChannel.send({
             embeds: [createEmbed({
