@@ -25,7 +25,7 @@ module.exports = {
          .setDescription('Rerolls winners for an ended giveaway')
          .addStringOption(opt => opt.setName('id').setDescription('Giveaway message ID').setRequired(true))
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageEvents),
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     const guildId = interaction.guild.id;
