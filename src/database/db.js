@@ -315,7 +315,12 @@ function getLeaderboard(guildId) {
   return Object.entries(data.levels[guildId]).map(([userId, stats]) => ({
     user_id: userId,
     ...stats
-  })).sort((a, b) => b.xp - a.xp);
+  })).sort((a, b) => {
+    if (b.level !== a.level) {
+      return b.level - a.level;
+    }
+    return b.xp - a.xp;
+  });
 }
 
 function saveLevelReward(guildId, level, roleId) {
