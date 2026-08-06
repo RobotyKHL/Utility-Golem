@@ -14,8 +14,8 @@ Golem is a custom, modular Discord server management bot built on Node.js, disco
 6. **Giveaways Manager:** Time-scheduled giveaways with rolling winners, rerolling options, and database persistence.
 7. **Leveling System:** Exp gain on message cooldown, `/level rank` command with text progress bar, server leaderboard, and role rewards!
 8. **Minecraft Integration:** Query server statuses, versions, MOTDs, and player lists natively.
-9. **Built-in Web Dashboard:** A beautiful, dark-themed local web dashboard served directly from the bot for toggling modules and viewing stats.
-10. **Auto-Update Bootstrap:** Native support for Pterodactyl panels to auto-pull the latest code on restart.
+9. **Built-in Web Dashboard:** A beautiful, dark-themed local web dashboard served directly from the bot for viewing stats and checking mod logs.
+10. **One-Command Auto-Updates:** Run `/update` directly in Discord to automatically pull the latest code from GitHub and restart the bot.
 
 ---
 
@@ -83,7 +83,7 @@ After the bot first starts, a `config.json` file will be available in your root 
    - `CLIENT_ID`
    - `API_KEY` (Your custom password to access the web dashboard)
 4. Start the server! The bootstrap will automatically download the `src/` folder from GitHub, install packages, and launch the bot. 
-5. To update your bot in the future, just delete the `src` folder and restart!
+5. **To update your bot in the future, simply run `/update` inside Discord!** The bot will auto-download updates and restart itself safely.
 
 ### Option 2: Local / VPS Hosting
 1. **Clone or Download** this directory.
@@ -106,4 +106,4 @@ To access the dashboard:
 1. Ensure port 3000 is forwarded/open on your host.
 2. Visit `http://<your-server-ip>:3000` in your browser.
 3. Enter the `API_KEY` you defined in your `.env` file to log in.
-4. Toggle modules, view stats, and check moderation logs directly from the web!
+4. View server statistics and check moderation logs directly from the web! *(Note: Configuration settings are managed entirely via `config.json` as the single source of truth).*
