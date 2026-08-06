@@ -74,23 +74,35 @@ module.exports = {
     }
 
     if (subcommand === 'leaderboard') {
+      await interaction.deferReply();
       const leaderboard = db.getLeaderboard(guildId).slice(0, 10);
       
       if (leaderboard.length === 0) {
-        return interaction.reply({ content: "No user stats recorded yet." });
+        return interaction.editReply({ content: "No user stats recorded yet." });
       }
 
       const rows = [];
       for (let i = 0; i < leaderboard.length; i++) {
         const entry = leaderboard[i];
-        rows.push(`**#${i + 1}** <@${entry.user_id}> - Level **${entry.level}** (${entry.xp} XP)`);
+        let displayName = `User (${entry.user_id})`;
+        try {
+          const user = await interaction.client.users.fetch(entry.user_id);
+          if (user) {
+            displayName = user.username;
+          }
+        } catch (_) {
+          // If the user left or API failed, we can try to get cached member
+          const cachedMember = interaction.guild.members.cache.get(entry.user_id);
+          if (cachedMember) displayName = cachedMember.user.username;
+        }
+        rows.push(`**#${i + 1}** **${displayName}** — Level **${entry.level}** (${entry.xp} XP)`);
       }
 
-      return interaction.reply({
+      return interaction.editReply({
         embeds: [createEmbed({
           title: `Server Leveling Leaderboard`,
           description: rows.join('\n'),
-          color: '#1e1f29'
+          color: '#5865F2'
         })]
       });
     }
