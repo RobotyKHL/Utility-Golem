@@ -9,7 +9,8 @@ module.exports = {
     const settings = db.getGuildSettings(guildId);
 
     // 1. Welcome Message
-    if (db.isModuleEnabled(guildId, 'welcome') && settings.welcome_enabled === 1 && settings.welcome_channel) {
+    const welcomeEnabled = settings.welcome_enabled === 1 || settings.welcome_enabled === true;
+    if (db.isModuleEnabled(guildId, 'welcome') && welcomeEnabled && settings.welcome_channel) {
       const channel = member.guild.channels.cache.get(settings.welcome_channel);
       if (channel) {
         let msg = settings.welcome_message || "Welcome {user} to {server}!";

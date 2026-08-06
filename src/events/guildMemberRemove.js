@@ -9,7 +9,8 @@ module.exports = {
     const settings = db.getGuildSettings(guildId);
 
     // 1. Goodbye Message
-    if (db.isModuleEnabled(guildId, 'welcome') && settings.goodbye_enabled === 1 && settings.goodbye_channel) {
+    const goodbyeEnabled = settings.goodbye_enabled === 1 || settings.goodbye_enabled === true;
+    if (db.isModuleEnabled(guildId, 'welcome') && goodbyeEnabled && settings.goodbye_channel) {
       const channel = member.guild.channels.cache.get(settings.goodbye_channel);
       if (channel) {
         let msg = settings.goodbye_message || "{username} has left the server.";

@@ -112,18 +112,29 @@ function getGuildSettings(guildId) {
   const settings = data.guild_settings[guildId];
 
   // Safely overlay config.json channels and prefix on top of the database values
-  try {
-    if (config.channels) {
-      if (config.channels.logs)         settings.logging_channel     = config.channels.logs;
-      if (config.channels.welcome)      settings.welcome_channel     = config.channels.welcome;
-      if (config.channels.goodbye)      settings.goodbye_channel     = config.channels.goodbye;
-      if (config.channels.suggestions)  settings.suggestion_channel  = config.channels.suggestions;
-      if (config.channels.tickets)      settings.ticket_logs_channel = config.channels.tickets;
-    }
-    if (config.guild && config.guild.prefix) {
-      settings.prefix = config.guild.prefix;
-    }
-  } catch (e) {
+try {
+      if (config.channels) {
+        if (config.channels.logs)         settings.logging_channel     = config.channels.logs;
+        if (config.channels.welcome)      settings.welcome_channel     = config.channels.welcome;
+        if (config.channels.goodbye)      settings.goodbye_channel     = config.channels.goodbye;
+        if (config.channels.suggestions)  settings.suggestion_channel  = config.channels.suggestions;
+        if (config.channels.tickets)      settings.ticket_logs_channel = config.channels.tickets;
+      }
+      if (config.guild && config.guild.prefix) {
+        settings.prefix = config.guild.prefix;
+      }
+      // config.json is the source of truth: enabling the welcome module with a
+      // channel configured implies welcome/goodbye messages should be active.
+      if (config.modules) {
+        const welcomeModule = config.modules.welcome === true;
+        if (welcomeModule && config.channels && config.channels.welcome) {
+          settings.welcome_enabled = 1;
+        }
+        if (welcomeModule && config.channels && config.channels.goodbye) {
+          settings.goodbye_enabled = 1;
+        }
+      }
+    } catch (e) {
     logger.error(`Error applying config.json overrides: ${e.message}`);
   }
 
