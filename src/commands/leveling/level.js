@@ -60,13 +60,13 @@ module.exports = {
       return interaction.reply({
         embeds: [createEmbed({
           title: `${user.username}'s Rank Status`,
-          description: `Here is the current leveling status for ${user}.`,
-          fields: [
-            { name: "Rank", value: `#${rank || 'N/A'}`, inline: true },
-            { name: "Level", value: `${userStats.level}`, inline: true },
-            { name: "XP", value: `${userStats.xp} / ${nextLevelXp}`, inline: true },
-            { name: "Progress Bar", value: `\`[${progressBar}]\` ${percentage}%`, inline: false }
-          ],
+          description: [
+            `Here is the current leveling status for ${user}:\n`,
+            `🏆 **Rank:** \`#${rank || 'N/A'}\``,
+            `📈 **Level:** \`${userStats.level}\``,
+            `✨ **XP:** \`${userStats.xp} / ${nextLevelXp}\` \`(${percentage}%)\``,
+            `📊 **Progress:** \`[${progressBar}]\``
+          ].join('\n'),
           thumbnail: user.displayAvatarURL({ dynamic: true }),
           color: '#3498db'
         })]
