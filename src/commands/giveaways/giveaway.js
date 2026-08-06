@@ -31,6 +31,8 @@ module.exports = {
     const guildId = interaction.guild.id;
 
     if (subcommand === 'start') {
+      await interaction.deferReply({ flags: 64 });
+
       const prize = interaction.options.getString('prize');
       const duration = interaction.options.getInteger('duration');
       const winnersCount = interaction.options.getInteger('winners');
@@ -52,10 +54,21 @@ module.exports = {
 
       const row = new ActionRowBuilder().addComponents(button);
 
-      const giveawayMessage = await channel.send({
-        embeds: [embed],
-        components: [row]
-      });
+      let giveawayMessage;
+      try {
+        giveawayMessage = await channel.send({
+          embeds: [embed],
+          components: [row]
+        });
+      } catch (err) {
+        return interaction.editReply({
+          embeds: [createEmbed({
+            title: "Giveaway Failed",
+            description: `Could not send the giveaway message in ${channel}.\n\`${err.message}\``,
+            color: '#ff4757'
+          })]
+        });
+      }
 
       // Save to database
       db.saveGiveaway({
@@ -71,42 +84,46 @@ module.exports = {
         winners: '[]'
       });
 
-      return interaction.reply({ content: `Giveaway started in ${channel}!`, flags: 64 });
+      return interaction.editReply({ content: `Giveaway started in ${channel}!` });
     }
 
     if (subcommand === 'end') {
+      await interaction.deferReply();
+
       const id = interaction.options.getString('id');
       const giveaway = db.getGiveaway(id);
 
       if (!giveaway) {
-        return interaction.reply({ content: "Giveaway not found.", flags: 64 });
+        return interaction.editReply({ content: "Giveaway not found." });
       }
 
       if (giveaway.ended === 1) {
-        return interaction.reply({ content: "That giveaway has already ended.", flags: 64 });
+        return interaction.editReply({ content: "That giveaway has already ended." });
       }
 
       // End it immediately
       const giveawayManager = require('../../modules/giveaways/giveawayManager');
       await giveawayManager.endGiveaway(interaction.client, giveaway);
-      return interaction.reply({ content: "Giveaway ended successfully." });
+      return interaction.editReply({ content: "Giveaway ended successfully." });
     }
 
     if (subcommand === 'reroll') {
+      await interaction.deferReply();
+
       const id = interaction.options.getString('id');
       const giveaway = db.getGiveaway(id);
 
       if (!giveaway) {
-        return interaction.reply({ content: "Giveaway not found.", flags: 64 });
+        return interaction.editReply({ content: "Giveaway not found." });
       }
 
       if (giveaway.ended === 0) {
-        return interaction.reply({ content: "That giveaway hasn't ended yet.", flags: 64 });
+        return interaction.editReply({ content: "That giveaway hasn't ended yet." });
       }
 
       const giveawayManager = require('../../modules/giveaways/giveawayManager');
       await giveawayManager.rerollGiveaway(interaction.client, giveaway);
-      return interaction.reply({ content: "Rerolled winners successfully." });
+      return interaction.editReply({ content: "Rerolled winners successfully." });
     }
   }
 };
