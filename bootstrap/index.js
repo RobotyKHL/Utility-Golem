@@ -29,6 +29,28 @@ function fileExists(p) {
   return fs.existsSync(p);
 }
 
+// Minimal .env loader — mirrors start.sh's behaviour: values already present
+// in the panel environment win over the file.
+function loadEnvFile(file) {
+  if (!fileExists(file)) return false;
+  try {
+    const lines = fs.readFileSync(file, 'utf8').split('\n');
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#') || !line.includes('=')) continue;
+      const idx = line.indexOf('=');
+      const key = line.slice(0, idx).trim();
+      let value = line.slice(idx + 1).trim();
+      if (value.startsWith('"')  && value.endsWith('"'))  value = value.slice(1, -1);
+      if (value.startsWith("'")  && value.endsWith("'"))  value = value.slice(1, -1);
+      if (process.env[key] === undefined) process.env[key] = value;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 // ─── Banner ────────────────────────────────────────────────
 console.log('');
 console.log('  ██████╗  ██████╗ ██╗     ███████╗███╗   ███╗');
@@ -91,7 +113,16 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
 console.log('');
 
 // ─── STEP 2: Install dependencies ──────────────────────────
-if (!fileExists(path.join(CONTAINER, 'node_modules', 'discord.js'))) {
+const pkgJsonPath = path.join(CONTAINER, 'package.json');
+const nodeModules = path.join(CONTAINER, 'node_modules');
+const pkgJsonTime = fileExists(pkgJsonPath) ? fs.statSync(pkgJsonPath).mtimeMs : 0;
+const lockTime = fileExists(path.join(CONTAINER, 'package-lock.json')) ? fs.statSync(path.join(CONTAINER, 'package-lock.json')).mtimeMs : 0;
+const nodeModulesTime = fileExists(nodeModules) ? fs.statSync(nodeModules).mtimeMs : 0;
+
+// Install if missing, or if package.json/lock is newer than node_modules
+// (new dependencies were added to the repo).
+if (!fileExists(path.join(CONTAINER, 'node_modules', 'discord.js')) ||
+    pkgJsonTime > nodeModulesTime || lockTime > nodeModulesTime) {
   console.log('[Golem] Installing Node.js dependencies (this may take 30-60s)...');
   console.log('');
 
@@ -111,6 +142,10 @@ if (!fileExists(path.join(CONTAINER, 'node_modules', 'discord.js'))) {
 console.log('');
 
 // ─── STEP 3: Validate environment ──────────────────────────
+// Load .env if present, so next (and only next) the panel variables,
+// .env satisfies configuration (this matches how src/index.js loads dotenv).
+loadEnvFile(path.join(CONTAINER, '.env'));
+
 if (!process.env.DISCORD_TOKEN) {
   console.warn('[Golem] WARNING: DISCORD_TOKEN is not set!');
   console.warn('[Golem]          Upload a .env file or set it in the panel variables.');
