@@ -26,6 +26,11 @@
     "tickets": []
   },
 
+  "messages": {
+    "welcome": "Welcome {user} to {server}!",
+    "goodbye": "{username} has left the server."
+  },
+
   "modules": {
     "moderation": true,
     "automod": false,

@@ -20,6 +20,9 @@ module.exports = {
           .replace(/{server}/g, member.guild.name)
           .replace(/{membercount}/g, member.guild.memberCount);
 
+        // Strip bare raw user IDs ("Welcome @123456789...") so they render as a name
+        msg = msg.replace(new RegExp(`(?<!<@)${member.id}`, 'g'), member.user.username);
+
         const embed = createEmbed({
           title: `Welcome to ${member.guild.name}!`,
           description: msg,

@@ -20,6 +20,9 @@ module.exports = {
           .replace(/{server}/g, member.guild.name)
           .replace(/{membercount}/g, member.guild.memberCount);
 
+        // Strip bare raw user IDs ("Goodbye 1234567890") so they don't show as raw numbers
+        msg = msg.replace(new RegExp(`(?<!<@)${member.id}`, 'g'), member.user.username);
+
         const embed = createEmbed({
           title: `Goodbye!`,
           description: msg,

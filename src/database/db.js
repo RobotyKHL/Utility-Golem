@@ -134,6 +134,11 @@ try {
           settings.goodbye_enabled = 1;
         }
       }
+      // Editable welcome/goodbye message templates from config.json
+      if (config.messages) {
+        if (config.messages.welcome)  settings.welcome_message  = config.messages.welcome;
+        if (config.messages.goodbye)  settings.goodbye_message  = config.messages.goodbye;
+      }
     } catch (e) {
     logger.error(`Error applying config.json overrides: ${e.message}`);
   }

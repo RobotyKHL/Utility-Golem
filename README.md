@@ -50,6 +50,10 @@ After the bot first starts, a `config.json` file will be available in your root 
     "level":    ["CHANNEL_ID", "CHANNEL_ID_2"],
     "giveaway": ["CHANNEL_ID"]
   },
+  "messages": {
+    "welcome": "Welcome {user} to {server}!",
+    "goodbye": "{username} has left the server."
+  },
   "modules": {
     "moderation":  true,
     "automod":     false,
