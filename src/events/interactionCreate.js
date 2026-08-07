@@ -126,6 +126,12 @@ module.exports = {
           return interaction.reply({ content: "This giveaway is no longer active.", flags: 64 });
         }
       }
+
+      // Puzzle submissions handling
+      if (customId.startsWith('puzzle_approve_') || customId.startsWith('puzzle_reject_')) {
+        const puzzleModule = require('../modules/forms/puzzleHandler');
+        return puzzleModule.handleInteraction(interaction);
+      }
     }
   }
 };

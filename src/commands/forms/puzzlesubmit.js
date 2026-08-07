@@ -1,0 +1,133 @@
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { createEmbed } = require('../../utils/embedBuilder');
+const logger = require('../../utils/logger');
+const db = require('../../database/db');
+const fs = require('fs');
+const path = require('path');
+
+function getFormsConfig() {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
+    return (cfg.forms && cfg.forms.puzzlesubmit) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+module.exports = {
+  data: new SlashCommandBuilder()
+    .setName('puzzlesubmit')
+    .setDescription('Create and submit a puzzle for the puzzle team')
+    .addStringOption(opt =>
+      opt.setName('title')
+        .setDescription('Puzzle title/name')
+        .setRequired(true)
+        .setMaxLength(100))
+    .addStringOption(opt =>
+      opt.setName('question')
+        .setDescription('The puzzle or riddle itself')
+        .setRequired(true)
+        .setMaxLength(2000))
+    .addStringOption(opt =>
+      opt.setName('answer')
+        .setDescription('The answer (kept hidden from the public until approved)')
+        .setRequired(true)
+        .setMaxLength(200))
+    .addStringOption(opt =>
+      opt.setName('difficulty')
+        .setDescription('Difficulty level')
+        .addChoices(
+          { name: 'Easy', value: 'easy' },
+          { name: 'Medium', value: 'medium' },
+          { name: 'Hard', value: 'hard' },
+          { name: 'Expert', value: 'expert' }
+        ))
+    .addStringOption(opt =>
+      opt.setName('hint')
+        .setDescription('An optional hint for solvers')
+        .setMaxLength(500))
+    .addAttachmentOption(opt =>
+      opt.setName('image')
+        .setDescription('An optional image for the puzzle')),
+  async execute(interaction) {
+    const title = interaction.options.getString('title');
+    const question = interaction.options.getString('question');
+    const answer = interaction.options.getString('answer');
+    const difficulty = interaction.options.getString('difficulty') || 'unspecified';
+    const hint = interaction.options.getString('hint');
+    const image = interaction.options.getAttachment('image');
+    const cfg = getFormsConfig();
+
+    await interaction.deferReply({ flags: 64 });
+
+    if (!cfg || !cfg.channel || !cfg.role) {
+      return interaction.editReply({
+        content: "The puzzle system isn't configured yet. An administrator must set `forms.puzzlesubmit.channel`, `forms.puzzlesubmit.role`, and `forms.puzzlesubmit.publicChannel` in `config.json`."
+      });
+    }
+
+    const staffChannel = interaction.guild.channels.cache.get(cfg.channel);
+    if (!staffChannel) {
+      return interaction.editReply({ content: "The configured puzzle staff channel no longer exists in this server." });
+    }
+
+    const submissionId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+    const fields = [
+      { name: "Difficulty", value: difficulty.charAt(0).toUpperCase() + difficulty.slice(1), inline: true },
+      { name: "Author", value: `${interaction.user} (ID: ${interaction.user.id})`, inline: true },
+      { name: "Answer", value: answer, inline: false }
+    ];
+    if (cfg.publicChannel) fields.push({ name: "Will be posted to", value: `<#${cfg.publicChannel}>`, inline: true });
+    if (hint) fields.push({ name: "Hint", value: hint.slice(0, 1024), inline: false });
+
+    const embed = createEmbed({
+      title: `Puzzle Submission — ${title}`,
+      description: question,
+      fields: fields,
+      color: '#9b59b6'
+    });
+
+    if (image && image.contentType && image.contentType.startsWith('image/')) embed.setImage(image.url);
+
+    const approveBtn = new ButtonBuilder()
+      .setCustomId(`puzzle_approve_${submissionId}`)
+      .setLabel('Approve & Post')
+      .setStyle(ButtonStyle.Success)
+      .setEmoji('✅');
+    const rejectBtn = new ButtonBuilder()
+      .setCustomId(`puzzle_reject_${submissionId}`)
+      .setLabel('Reject')
+      .setStyle(ButtonStyle.Danger)
+      .setEmoji('❌');
+    const row = new ActionRowBuilder().addComponents(approveBtn, rejectBtn);
+
+    const staff = await staffChannel.send({
+      content: `<@&${cfg.role}>`,
+      embeds: [embed],
+      components: [row],
+      allowedMentions: { parse: ['roles'] }
+    }).catch(err => {
+      logger.error(`Puzzle submission send failed: ${err.message}`);
+      return null;
+    });
+
+    if (!staff) {
+      return interaction.editReply({ content: "Failed to submit your puzzle. Please try again later." });
+    }
+
+    db.savePuzzleSubmission({
+      id: submissionId,
+      author_id: interaction.user.id,
+      title: title,
+      question: question,
+      answer: answer,
+      difficulty: difficulty,
+      hint: hint || null,
+      image_url: image && image.contentType && image.contentType.startsWith('image/') ? image.url : null,
+      created_at: Date.now()
+    });
+
+    return interaction.editReply({ content: "Your puzzle has been submitted for review. Staff will approve and post it if accepted." });
+  }
+};

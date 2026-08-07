@@ -23,7 +23,21 @@
   "commandChannels": {
     "level": [],
     "giveaway": [],
-    "tickets": []
+    "tickets": [],
+    "modmail": [],
+    "puzzlesubmit": []
+  },
+
+  "forms": {
+    "modmail": {
+      "channel": "",
+      "role": ""
+    },
+    "puzzlesubmit": {
+      "channel": "",
+      "role": "",
+      "publicChannel": ""
+    }
   },
 
   "messages": {

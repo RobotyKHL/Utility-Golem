@@ -30,7 +30,8 @@ let data = {
   levels: {}, // guildId -> { userId: { xp, level, last_message_time } }
   level_rewards: {}, // guildId -> { level: roleId }
   starboard_messages: {}, // original_msg_id -> { starboard_msg_id, guild_id, star_count }
-  automod_settings: {}
+  automod_settings: {},
+  puzzle_submissions: {} // id -> { author_id, title, question, answer, hint, difficulty, image_url, created_at }
 };
 
 // Save database atomatically
@@ -370,6 +371,30 @@ function getStarboardMessage(originalMsgId) {
   return data.starboard_messages[originalMsgId];
 }
 
+// Puzzle Submission Helpers
+function savePuzzleSubmission(submission) {
+  data.puzzle_submissions[submission.id] = submission;
+  save();
+  return submission;
+}
+
+function getPuzzleSubmission(id) {
+  return data.puzzle_submissions[id];
+}
+
+function deletePuzzleSubmission(id) {
+  if (data.puzzle_submissions[id]) {
+    delete data.puzzle_submissions[id];
+    save();
+    return true;
+  }
+  return false;
+}
+
+function getAllPuzzleSubmissions() {
+  return Object.values(data.puzzle_submissions);
+}
+
 module.exports = {
   db: {
     prepare: (sql) => {
@@ -415,5 +440,9 @@ module.exports = {
   getLevelRewards,
   deleteLevelReward,
   saveStarboardMessage,
-  getStarboardMessage
+  getStarboardMessage,
+  savePuzzleSubmission,
+  getPuzzleSubmission,
+  deletePuzzleSubmission,
+  getAllPuzzleSubmissions
 };
