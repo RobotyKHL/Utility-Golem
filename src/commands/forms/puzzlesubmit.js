@@ -75,6 +75,9 @@ module.exports = {
     if (!staffChannel) {
       return interaction.editReply({ content: "The configured puzzle staff channel no longer exists in this server." });
     }
+    if (!staffChannel.isTextBased()) {
+      return interaction.editReply({ content: "The configured puzzle staff channel isn't a text channel, so submissions can't be sent there." });
+    }
 
     const submissionId = `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 

@@ -59,6 +59,9 @@ module.exports = {
     if (!targetChannel) {
       return interaction.editReply({ content: "The configured modmail channel no longer exists in this server." });
     }
+    if (!targetChannel.isTextBased()) {
+      return interaction.editReply({ content: "The configured modmail channel isn't a text channel, so messages can't be sent there." });
+    }
 
     const embed = createEmbed({
       title: "Mod Mail Submission",

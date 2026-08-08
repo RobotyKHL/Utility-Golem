@@ -44,6 +44,13 @@ module.exports = {
         });
       }
 
+      if (!publicChannel.isTextBased()) {
+        return interaction.reply({
+          content: `The public puzzle channel <#${String(cfg.publicChannel)}> is not a text channel, so puzzles can't be posted there. Use a normal text channel.`,
+          flags: 64
+        });
+      }
+
       const fields = [
         { name: "Difficulty", value: submission.difficulty.charAt(0).toUpperCase() + submission.difficulty.slice(1), inline: true },
         { name: "Author", value: `<@${submission.author_id}>`, inline: true },
