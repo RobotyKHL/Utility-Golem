@@ -50,11 +50,12 @@ module.exports = {
 
     if (!cfg || !cfg.channel || !cfg.role) {
       return interaction.editReply({
-        content: "The modmail system isn't configured yet. An administrator must set `forms.modmail.channel` and `forms.modmail.role` in `config.json`."
+        content: "The modmail system isn't configured yet. An administrator must add the `forms.modmail` section to `config.json` with the `channel` and `role` IDs (as quoted strings)."
       });
     }
 
-    const targetChannel = interaction.guild.channels.cache.get(cfg.channel);
+    // Coerce IDs to strings — unquoted numeric IDs in JSON lose precision and break lookups
+    const targetChannel = interaction.guild.channels.cache.get(String(cfg.channel));
     if (!targetChannel) {
       return interaction.editReply({ content: "The configured modmail channel no longer exists in this server." });
     }
@@ -75,9 +76,9 @@ module.exports = {
     const files = images.map(a => ({ attachment: a.url, name: a.name }));
 
     const sent = await targetChannel.send({
-      content: `<@&${cfg.role}>`,
+      content: `<@&${String(cfg.role)}>`,
       embeds: [embed],
-      files: files,
+      files: files.length > 0 ? files : undefined,
       allowedMentions: { parse: ['roles'] }
     }).catch(err => {
       logger.error(`Modmail send failed: ${err.message}`);
@@ -85,7 +86,7 @@ module.exports = {
     });
 
     if (!sent) {
-      return interaction.editReply({ content: "Failed to send your message. Please try again later." });
+      return interaction.editReply({ content: `Failed to send your message: the staff channel/role IDs may be wrong or the bot lacks permission there. Check config.json.` });
     }
 
     return interaction.editReply({

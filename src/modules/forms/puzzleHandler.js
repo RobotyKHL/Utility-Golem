@@ -21,7 +21,8 @@ module.exports = {
       return interaction.reply({ content: "You do not have permission to review puzzle submissions.", flags: 64 });
     }
 
-    const [verb, , submissionId] = interaction.customId.split('_');
+    const [prefix, verb, submissionId] = interaction.customId.split('_');
+    if (prefix !== 'puzzle') return;
     const submission = db.getPuzzleSubmission(submissionId);
 
     if (!submission) {
@@ -33,12 +34,12 @@ module.exports = {
 
     if (mode === 'approve') {
       const publicChannel = cfg && cfg.publicChannel
-        ? interaction.guild.channels.cache.get(cfg.publicChannel)
+        ? interaction.guild.channels.cache.get(String(cfg.publicChannel))
         : null;
 
       if (!publicChannel) {
         return interaction.reply({
-          content: "The public puzzle channel isn't configured or no longer exists. Set `forms.puzzlesubmit.publicChannel` in `config.json`.",
+          content: "The public puzzle channel isn't configured or no longer exists. Set `forms.puzzlesubmit.publicChannel` in `config.json` (as a quoted string), or the bot lacks permission to see it.",
           flags: 64
         });
       }

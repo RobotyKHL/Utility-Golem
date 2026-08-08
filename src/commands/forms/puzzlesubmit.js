@@ -48,7 +48,8 @@ module.exports = {
         .setMaxLength(500))
     .addAttachmentOption(opt =>
       opt.setName('image')
-        .setDescription('An optional image for the puzzle')),
+        .setDescription('An image for the puzzle')
+        .setRequired(true)),
   async execute(interaction) {
     const title = interaction.options.getString('title');
     const question = interaction.options.getString('question');
@@ -60,13 +61,17 @@ module.exports = {
 
     await interaction.deferReply({ flags: 64 });
 
+    if (!image || !image.contentType || !image.contentType.startsWith('image/')) {
+      return interaction.editReply({ content: "The puzzle image must be an actual image file (PNG, JPG, GIF, or WEBP)." });
+    }
+
     if (!cfg || !cfg.channel || !cfg.role) {
       return interaction.editReply({
-        content: "The puzzle system isn't configured yet. An administrator must set `forms.puzzlesubmit.channel`, `forms.puzzlesubmit.role`, and `forms.puzzlesubmit.publicChannel` in `config.json`."
+        content: "The puzzle system isn't configured yet. An administrator must add the `forms.puzzlesubmit` section to `config.json` with `channel`, `role`, and `publicChannel` IDs (as quoted strings)."
       });
     }
 
-    const staffChannel = interaction.guild.channels.cache.get(cfg.channel);
+    const staffChannel = interaction.guild.channels.cache.get(String(cfg.channel));
     if (!staffChannel) {
       return interaction.editReply({ content: "The configured puzzle staff channel no longer exists in this server." });
     }
@@ -78,7 +83,7 @@ module.exports = {
       { name: "Author", value: `${interaction.user} (ID: ${interaction.user.id})`, inline: true },
       { name: "Answer", value: answer, inline: false }
     ];
-    if (cfg.publicChannel) fields.push({ name: "Will be posted to", value: `<#${cfg.publicChannel}>`, inline: true });
+    if (cfg.publicChannel) fields.push({ name: "Will be posted to", value: `<#${String(cfg.publicChannel)}>`, inline: true });
     if (hint) fields.push({ name: "Hint", value: hint.slice(0, 1024), inline: false });
 
     const embed = createEmbed({
@@ -103,7 +108,7 @@ module.exports = {
     const row = new ActionRowBuilder().addComponents(approveBtn, rejectBtn);
 
     const staff = await staffChannel.send({
-      content: `<@&${cfg.role}>`,
+      content: `<@&${String(cfg.role)}>`,
       embeds: [embed],
       components: [row],
       allowedMentions: { parse: ['roles'] }
@@ -113,7 +118,7 @@ module.exports = {
     });
 
     if (!staff) {
-      return interaction.editReply({ content: "Failed to submit your puzzle. Please try again later." });
+      return interaction.editReply({ content: "Failed to submit your puzzle: staff channel/role IDs may be wrong or the bot lacks permission there. Check config.json." });
     }
 
     db.savePuzzleSubmission({
