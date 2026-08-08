@@ -1,4 +1,4 @@
-const { PermissionFlagsBits } = require('discord.js');
+const { PermissionFlagsBits, ChannelType } = require('discord.js');
 const db = require('../../database/db');
 const { createEmbed } = require('../../utils/embedBuilder');
 const logger = require('../../utils/logger');
@@ -44,9 +44,10 @@ module.exports = {
         });
       }
 
-      if (!publicChannel.isTextBased()) {
+      const isForum = publicChannel.type === ChannelType.GuildForum;
+      if (!isForum && !publicChannel.isTextBased()) {
         return interaction.reply({
-          content: `The public puzzle channel <#${String(cfg.publicChannel)}> is not a text channel, so puzzles can't be posted there. Use a normal text channel.`,
+          content: `The public puzzle channel <#${String(cfg.publicChannel)}> is not a text channel, so puzzles can't be posted there. Use a normal text channel or a forum (forum = one post per puzzle).`,
           flags: 64
         });
       }
@@ -67,8 +68,19 @@ module.exports = {
       if (submission.image_url) publicEmbed.setImage(submission.image_url);
 
       try {
-        const postMsg = await publicChannel.send({ embeds: [publicEmbed] });
-        await postMsg.reply(`> **Answer:** ||${submission.answer}||`);
+        let postMsg;
+        if (isForum) {
+          // Forum channel: create a forum post (thread) per puzzle
+          postMsg = await publicChannel.threads.create({
+            name: `🧩 ${submission.title}`.slice(0, 100),
+            message: { embeds: [publicEmbed] }
+          });
+          await postMsg.send(`> **Answer:** ||${submission.answer}||`);
+        } else {
+          // Normal text channel: post the message, answer as a reply
+          postMsg = await publicChannel.send({ embeds: [publicEmbed] });
+          await postMsg.reply(`> **Answer:** ||${submission.answer}||`);
+        }
       } catch (err) {
         logger.error(`Puzzle posting failed: ${err.message}`);
         return interaction.reply({ content: `Failed to post the puzzle to ${publicChannel}: ${err.message}`, flags: 64 });
