@@ -33,6 +33,10 @@ module.exports = {
         .setDescription('The answer (kept hidden from the public until approved)')
         .setRequired(true)
         .setMaxLength(200))
+    .addAttachmentOption(opt =>
+      opt.setName('image')
+        .setDescription('An image for the puzzle')
+        .setRequired(true))
     .addStringOption(opt =>
       opt.setName('difficulty')
         .setDescription('Difficulty level')
@@ -45,11 +49,7 @@ module.exports = {
     .addStringOption(opt =>
       opt.setName('hint')
         .setDescription('An optional hint for solvers')
-        .setMaxLength(500))
-    .addAttachmentOption(opt =>
-      opt.setName('image')
-        .setDescription('An image for the puzzle')
-        .setRequired(true)),
+        .setMaxLength(500)),
   async execute(interaction) {
     const title = interaction.options.getString('title');
     const question = interaction.options.getString('question');
