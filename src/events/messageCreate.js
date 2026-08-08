@@ -9,6 +9,26 @@ module.exports = {
   async execute(message, client) {
     if (message.author.bot || !message.guild) return;
 
+    // 0. Commands-only channels: delete normal chat messages
+    try {
+      const configPath = path.join(process.cwd(), 'config.json');
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const cmdOnlyChannels = (config.commandOnlyChannels || []).map(id => String(id).trim());
+        if (cmdOnlyChannels.length > 0 && cmdOnlyChannels.includes(message.channelId)) {
+          const prefix = (db.getGuildSettings(message.guild.id) || {}).prefix || 'g!';
+          const isCommand = message.content.trim().startsWith(prefix);
+          if (!isCommand) {
+            await message.delete().catch(() => {});
+            const hint = await message.channel.send("This channel is for commands only — chat messages are deleted here.").catch(() => null);
+            if (hint) setTimeout(() => hint.delete().catch(() => {}), 4000);
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore config read errors
+    }
+
     // 1. Run Automod Check
     const triggered = await automod.handleAutomod(message);
     if (triggered) return;

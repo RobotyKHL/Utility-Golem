@@ -28,6 +28,8 @@
     "puzzlesubmit": []
   },
 
+  "commandOnlyChannels": [],
+
   "forms": {
     "modmail": {
       "channel": "",
