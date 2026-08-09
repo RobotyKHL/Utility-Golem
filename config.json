@@ -4,13 +4,11 @@
     "version": "1.0.0",
     "defaultLanguage": "en"
   },
-
   "guild": {
     "id": "",
     "prefix": "g!",
     "embedColor": "#5865F2"
   },
-
   "channels": {
     "logs": "",
     "welcome": "",
@@ -19,7 +17,6 @@
     "suggestions": "",
     "tickets": ""
   },
-
   "commandChannels": {
     "level": [],
     "giveaway": [],
@@ -27,9 +24,7 @@
     "modmail": [],
     "puzzlesubmit": []
   },
-
   "commandOnlyChannels": [],
-
   "forms": {
     "modmail": {
       "channel": "",
@@ -38,15 +33,14 @@
     "puzzlesubmit": {
       "channel": "",
       "role": "",
-      "publicChannel": ""
+      "publicChannel": "",
+      "postRole": ""
     }
   },
-
   "messages": {
     "welcome": "Welcome {user} to {server}!",
     "goodbye": "{username} has left the server."
   },
-
   "modules": {
     "moderation": true,
     "automod": false,

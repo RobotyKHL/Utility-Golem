@@ -57,6 +57,7 @@ module.exports = {
         { name: "Author", value: `<@${submission.author_id}>`, inline: true },
         { name: "Posted by", value: `${interaction.user}`, inline: true }
       ];
+      if (submission.details) fields.push({ name: "Details", value: submission.details.slice(0, 1024), inline: false });
       if (submission.hint) fields.push({ name: "Hint", value: submission.hint.slice(0, 1024), inline: false });
 
       const publicEmbed = createEmbed({
@@ -67,19 +68,39 @@ module.exports = {
       });
       if (submission.image_url) publicEmbed.setImage(submission.image_url);
 
+      const postRolePing = cfg && cfg.postRole ? `<@&${String(cfg.postRole)}>` : null;
+
+      const answerFiles = submission.answer_image_url
+        ? [{ attachment: submission.answer_image_url, name: `SPOILER_answer.png` }]
+        : undefined;
+
       try {
         let postMsg;
         if (isForum) {
           // Forum channel: create a forum post (thread) per puzzle
           postMsg = await publicChannel.threads.create({
             name: `🧩 ${submission.title}`.slice(0, 100),
-            message: { embeds: [publicEmbed] }
+            message: {
+              content: postRolePing || undefined,
+              embeds: [publicEmbed],
+              allowedMentions: postRolePing ? { parse: ['roles'] } : undefined
+            }
           });
-          await postMsg.send(`> **Answer:** ||${submission.answer}||`);
+          await postMsg.send({
+            content: `> **Answer:** ||${submission.answer}||`,
+            files: answerFiles
+          });
         } else {
           // Normal text channel: post the message, answer as a reply
-          postMsg = await publicChannel.send({ embeds: [publicEmbed] });
-          await postMsg.reply(`> **Answer:** ||${submission.answer}||`);
+          postMsg = await publicChannel.send({
+            content: postRolePing || undefined,
+            embeds: [publicEmbed],
+            allowedMentions: postRolePing ? { parse: ['roles'] } : undefined
+          });
+          await postMsg.reply({
+            content: `> **Answer:** ||${submission.answer}||`,
+            files: answerFiles
+          });
         }
       } catch (err) {
         logger.error(`Puzzle posting failed: ${err.message}`);

@@ -37,6 +37,13 @@ module.exports = {
       opt.setName('image')
         .setDescription('An image for the puzzle')
         .setRequired(true))
+    .addAttachmentOption(opt =>
+      opt.setName('answer_image')
+        .setDescription('Optional image showing the answer (posted as a spoiler after approval)'))
+    .addStringOption(opt =>
+      opt.setName('details')
+        .setDescription('Optional extra details needed to solve the puzzle (shown publicly)')
+        .setMaxLength(1500))
     .addStringOption(opt =>
       opt.setName('difficulty')
         .setDescription('Difficulty level')
@@ -54,9 +61,11 @@ module.exports = {
     const title = interaction.options.getString('title');
     const question = interaction.options.getString('question');
     const answer = interaction.options.getString('answer');
+    const details = interaction.options.getString('details');
     const difficulty = interaction.options.getString('difficulty') || 'unspecified';
     const hint = interaction.options.getString('hint');
     const image = interaction.options.getAttachment('image');
+    const answerImage = interaction.options.getAttachment('answer_image');
     const cfg = getFormsConfig();
 
     await interaction.deferReply({ flags: 64 });
@@ -86,6 +95,7 @@ module.exports = {
       { name: "Author", value: `${interaction.user} (ID: ${interaction.user.id})`, inline: true },
       { name: "Answer", value: answer, inline: false }
     ];
+    if (details) fields.push({ name: "Details (shown publicly)", value: details.slice(0, 1024), inline: false });
     if (cfg.publicChannel) fields.push({ name: "Will be posted to", value: `<#${String(cfg.publicChannel)}>`, inline: true });
     if (hint) fields.push({ name: "Hint", value: hint.slice(0, 1024), inline: false });
 
@@ -114,6 +124,9 @@ module.exports = {
       content: `<@&${String(cfg.role)}>`,
       embeds: [embed],
       components: [row],
+      files: answerImage && answerImage.contentType && answerImage.contentType.startsWith('image/')
+        ? [{ attachment: answerImage.url, name: `answer-${submissionId}.${answerImage.contentType.split('/')[1] || 'png'}` }]
+        : undefined,
       allowedMentions: { parse: ['roles'] }
     }).catch(err => {
       logger.error(`Puzzle submission send failed: ${err.message}`);
@@ -130,9 +143,11 @@ module.exports = {
       title: title,
       question: question,
       answer: answer,
+      details: details || null,
       difficulty: difficulty,
       hint: hint || null,
       image_url: image && image.contentType && image.contentType.startsWith('image/') ? image.url : null,
+      answer_image_url: answerImage && answerImage.contentType && answerImage.contentType.startsWith('image/') ? answerImage.url : null,
       created_at: Date.now()
     });
 
