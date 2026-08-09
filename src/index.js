@@ -5,6 +5,10 @@ const path = require('path');
 const express = require('express');
 const logger = require('./utils/logger');
 const db = require('./database/db');
+const { mergeMissingConfigKeys } = require('./config/configMerge');
+
+// Auto-add any new config options introduced by updates (existing values are never overwritten)
+mergeMissingConfigKeys();
 
 // Setup Database
 db.init();

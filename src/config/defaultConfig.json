@@ -1,0 +1,57 @@
+{
+  "bot": {
+    "name": "Golem",
+    "version": "1.0.0",
+    "defaultLanguage": "en"
+  },
+  "guild": {
+    "id": "",
+    "prefix": "g!",
+    "embedColor": "#5865F2"
+  },
+  "channels": {
+    "logs": "",
+    "welcome": "",
+    "goodbye": "",
+    "levelUp": "",
+    "suggestions": "",
+    "tickets": ""
+  },
+  "commandChannels": {
+    "level": [],
+    "giveaway": [],
+    "tickets": [],
+    "modmail": [],
+    "puzzlesubmit": []
+  },
+  "commandOnlyChannels": [],
+  "forms": {
+    "modmail": {
+      "channel": "",
+      "role": ""
+    },
+    "puzzlesubmit": {
+      "channel": "",
+      "role": "",
+      "publicChannel": "",
+      "postRole": ""
+    }
+  },
+  "messages": {
+    "welcome": "Welcome {user} to {server}!",
+    "goodbye": "{username} has left the server."
+  },
+  "modules": {
+    "moderation": true,
+    "automod": false,
+    "logging": true,
+    "welcome": true,
+    "leveling": true,
+    "tickets": true,
+    "suggestions": true,
+    "giveaways": true,
+    "starboard": false,
+    "minecraft": true,
+    "utility": true
+  }
+}
