@@ -15,10 +15,9 @@ module.exports = {
       if (channel) {
         let msg = settings.welcome_message || "Welcome {user} to {server}!";
         msg = msg
-          // Plain text name (not <@id>) so the welcome renders identically on
-          // every device — embed mentions only show names for users the viewing
-          // client happens to have cached.
-          .replace(/{user}/g, `**${member.displayName}**`)
+          // Plain-text name linked to the profile — renders identically on every
+          // device (embed mentions only resolve for users the viewer has cached)
+          .replace(/{user}/g, `[${member.displayName}](https://discord.com/users/${member.id})`)
           .replace(/{username}/g, member.user.username)
           .replace(/{server}/g, member.guild.name)
           .replace(/{membercount}/g, member.guild.memberCount);
