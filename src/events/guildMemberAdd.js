@@ -22,8 +22,9 @@ module.exports = {
           .replace(/{server}/g, member.guild.name)
           .replace(/{membercount}/g, member.guild.memberCount);
 
-        // Strip bare raw user IDs ("Welcome @123456789...") so they render as a name
-        msg = msg.replace(new RegExp(`(?<!<@)${member.id}`, 'g'), member.user.username);
+        // Strip bare raw user IDs ("Welcome 123456789...") so they render as a name
+        // (but not IDs inside the profile link — those must stay inside the URL)
+        msg = msg.replace(new RegExp(`(?<!<@)(?<![0-9/])${member.id}`, 'g'), member.user.username);
 
         const embed = createEmbed({
           title: `Welcome to ${member.guild.name}!`,

@@ -15,13 +15,13 @@ module.exports = {
       if (channel) {
         let msg = settings.goodbye_message || "{username} has left the server.";
         msg = msg
-          .replace(/{user}/g, member.toString())
+          .replace(/{user}/g, `[${member.displayName}](https://discord.com/users/${member.id})`)
           .replace(/{username}/g, member.user.username)
           .replace(/{server}/g, member.guild.name)
           .replace(/{membercount}/g, member.guild.memberCount);
 
         // Strip bare raw user IDs ("Goodbye 1234567890") so they don't show as raw numbers
-        msg = msg.replace(new RegExp(`(?<!<@)${member.id}`, 'g'), member.user.username);
+        msg = msg.replace(new RegExp(`(?<!<@)(?<![0-9/])${member.id}`, 'g'), member.user.username);
 
         const embed = createEmbed({
           title: `Goodbye!`,
