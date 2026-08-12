@@ -1,6 +1,7 @@
 const db = require('../database/db');
 const { createEmbed } = require('../utils/embedBuilder');
 const logger = require('../utils/logger');
+const { ActionRowBuilder, MediaGalleryBuilder, MediaGalleryItemBuilder } = require('discord.js');
 
 module.exports = {
   name: 'guildMemberAdd',
@@ -26,15 +27,23 @@ module.exports = {
         // (but not IDs inside the profile link — those must stay inside the URL)
         msg = msg.replace(new RegExp(`(?<!<@)(?<![0-9/])${member.id}`, 'g'), member.user.username);
 
-        const embed = createEmbed({
-          title: `Welcome to ${member.guild.name}!`,
-          description: msg,
-          thumbnail: member.user.displayAvatarURL({ dynamic: true })
-        });
-        
-        channel.send({ embeds: [embed] }).catch(err => {
-          logger.error(`Welcome message failed to send: ${err.message}`);
-        });
+        // Discord v2 component: avatar as a native media gallery tile (no embed).
+        // Falls back to the classic embed thumbnail if the API rejects it.
+        try {
+          const avatar = member.user.displayAvatarURL({ extension: 'png', size: 512 });
+          const gallery = new MediaGalleryBuilder()
+            .addItems(new MediaGalleryItemBuilder().setURL(avatar));
+          const row = new ActionRowBuilder().addComponents(gallery);
+          await channel.send({ content: msg, components: [row] });
+        } catch (err) {
+          logger.error(`Welcome media gallery failed (falling back to embed): ${err.message}`);
+          const embed = createEmbed({
+            title: `Welcome to ${member.guild.name}!`,
+            description: msg,
+            thumbnail: member.user.displayAvatarURL({ dynamic: true })
+          });
+          await channel.send({ embeds: [embed] });
+        }
       }
     }
 
