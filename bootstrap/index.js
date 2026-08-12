@@ -69,7 +69,7 @@ if (!fileExists(path.join(CONTAINER, 'src'))) {
 
   try {
     // Download tar.gz (tar is always available on Linux, unlike unzip)
-    run(`curl -fsSL "${REPO_ZIP}" -o "${TMP_TAR}"`);
+    run(`curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors "${REPO_ZIP}" -o "${TMP_TAR}"`);
 
     // Extract tar.gz
     run(`tar -xzf "${TMP_TAR}" -C /tmp/`);

@@ -27,7 +27,7 @@ module.exports = {
     logger.info('Auto-update triggered via /update command.');
 
     // Execute the update commands sequentially
-    exec(`curl -fsSL "${repoZip}" -o "${tmpTar}" && tar -xzf "${tmpTar}" -C /tmp/`, async (error, stdout, stderr) => {
+    exec(`curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors "${repoZip}" -o "${tmpTar}" && tar -xzf "${tmpTar}" -C /tmp/`, async (error, stdout, stderr) => {
       if (error) {
         logger.error(`Update download failed: ${error.message}`);
         return interaction.editReply({
