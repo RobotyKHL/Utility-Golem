@@ -1,5 +1,7 @@
+const { AttachmentBuilder } = require('discord.js');
 const db = require('../database/db');
 const { createEmbed } = require('../utils/embedBuilder');
+const { generateWelcomeCard } = require('../utils/imageBuilder');
 const logger = require('../utils/logger');
 
 module.exports = {
@@ -26,15 +28,23 @@ module.exports = {
         // (but not IDs inside the profile link — those must stay inside the URL)
         msg = msg.replace(new RegExp(`(?<!<@)(?<![0-9/])${member.id}`, 'g'), member.user.username);
 
-        const embed = createEmbed({
-          title: `Welcome to ${member.guild.name}!`,
-          description: msg,
-          thumbnail: member.user.displayAvatarURL({ dynamic: true })
-        });
-
-        channel.send({ embeds: [embed] }).catch(err => {
-          logger.error(`Welcome message failed to send: ${err.message}`);
-        });
+        try {
+          const imgBuffer = await generateWelcomeCard(member);
+          const attachment = new AttachmentBuilder(imgBuffer, { name: 'welcome.png' });
+          channel.send({ content: `Welcome ${member}!`, files: [attachment] }).catch(err => {
+            logger.error(`Welcome message failed to send: ${err.message}`);
+          });
+        } catch (err) {
+          logger.error(`Welcome image generation failed: ${err.message}`);
+          const embed = createEmbed({
+            title: `Welcome to ${member.guild.name}!`,
+            description: msg,
+            thumbnail: member.user.displayAvatarURL({ dynamic: true })
+          });
+          channel.send({ embeds: [embed] }).catch(err => {
+            logger.error(`Welcome message failed to send: ${err.message}`);
+          });
+        }
       }
     }
 

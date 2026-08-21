@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } = require('discord.js');
 const db = require('../../database/db');
 const { createEmbed } = require('../../utils/embedBuilder');
+const { generateRankCard } = require('../../utils/imageBuilder');
 
 module.exports = {
   module: 'leveling',
@@ -57,20 +58,34 @@ module.exports = {
       const leaderboard = db.getLeaderboard(guildId);
       const rank = leaderboard.findIndex(entry => entry.user_id === user.id) + 1;
 
-      return interaction.reply({
-        embeds: [createEmbed({
-          title: `${user.username}'s Rank Status`,
-          description: [
-            `Here is the current leveling status for ${user}:\n`,
-            `🏆 **Rank:** \`#${rank || 'N/A'}\``,
-            `📈 **Level:** \`${userStats.level}\``,
-            `✨ **XP:** \`${userStats.xp} / ${nextLevelXp}\` \`(${percentage}%)\``,
-            `📊 **Progress:** \`[${progressBar}]\``
-          ].join('\n'),
-          thumbnail: user.displayAvatarURL({ dynamic: true }),
-          color: '#3498db'
-        })]
-      });
+      await interaction.deferReply();
+
+      try {
+        const imgBuffer = await generateRankCard(user, userStats, rank, guildId);
+        const attachment = new AttachmentBuilder(imgBuffer, { name: 'rank.png' });
+        return interaction.editReply({ files: [attachment] });
+      } catch (err) {
+        // Fallback to text embed if image generation fails
+        const nextLevelXp = (userStats.level * 100) + 100;
+        const percentage = Math.min(100, Math.floor((userStats.xp / nextLevelXp) * 100));
+        const barSize = 10;
+        const filledCount = Math.round((percentage / 100) * barSize);
+        const progressBar = '█'.repeat(filledCount) + '░'.repeat(barSize - filledCount);
+        return interaction.editReply({
+          embeds: [createEmbed({
+            title: `${user.username}'s Rank Status`,
+            description: [
+              `Here is the current leveling status for ${user}:\n`,
+              `🏆 **Rank:** \`#${rank || 'N/A'}\``,
+              `📈 **Level:** \`${userStats.level}\``,
+              `✨ **XP:** \`${userStats.xp} / ${nextLevelXp}\` \`(${percentage}%)\``,
+              `📊 **Progress:** \`[${progressBar}]\``
+            ].join('\n'),
+            thumbnail: user.displayAvatarURL({ dynamic: true }),
+            color: '#e91e8c'
+          })]
+        });
+      }
     }
 
     if (subcommand === 'leaderboard') {

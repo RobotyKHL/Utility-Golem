@@ -67,7 +67,7 @@ async function endGiveaway(client, giveaway) {
     }
 
     if (winners.length > 0) {
-      channel.send(`🎉 Congratulations to the winners of **${giveaway.prize}**: ${winners.map(w => `<@${w}>`).join(', ')}!`);
+      channel.send(`🎉 Congratulations to the winner(s) of **${giveaway.prize}**: ${winners.map(w => `<@${w}>`).join(', ')}!`);
     } else {
       channel.send(`😭 Nobody entered the giveaway for **${giveaway.prize}**.`);
     }

@@ -55,8 +55,16 @@ module.exports = {
       }
 
       try {
-        // Copy the new src directory over (cp -r will overwrite existing files)
-        exec(`cp -r "${srcSource}/." "${srcDest}/" && rm -rf "${tmpTar}" "${tmpDir}"`, async (copyError) => {
+        const pkgSource = path.join(tmpDir, 'package.json');
+        const pkgDest = path.join(container, 'package.json');
+        let copyCmd = `cp -r "${srcSource}/." "${srcDest}/"`;
+        if (fs.existsSync(pkgSource)) {
+          copyCmd += ` && cp "${pkgSource}" "${pkgDest}"`;
+        }
+        copyCmd += ` && rm -rf "${tmpTar}" "${tmpDir}"`;
+
+        // Copy the new src directory and package.json over
+        exec(copyCmd, async (copyError) => {
           if (copyError) {
             logger.error(`Failed to copy files: ${copyError.message}`);
             return interaction.editReply({
