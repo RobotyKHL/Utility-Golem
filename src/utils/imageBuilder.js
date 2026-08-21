@@ -177,6 +177,7 @@ async function generateRankCard(user, stats, rank, guildId) {
  * Generates a pink-clean welcome card image.
  * @param {import('discord.js').GuildMember} member
  * @returns {Promise<Buffer>} PNG buffer
+ */
 async function generateWelcomeCard(member) {
   if (!canvasLib) {
     throw new Error('@napi-rs/canvas is not installed or available');
