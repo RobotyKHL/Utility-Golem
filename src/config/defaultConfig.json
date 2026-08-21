@@ -7,7 +7,7 @@
   "guild": {
     "id": "",
     "prefix": "g!",
-    "embedColor": "#5865F2"
+    "embedColor": "#e91e8c"
   },
   "channels": {
     "logs": "",
