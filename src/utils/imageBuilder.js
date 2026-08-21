@@ -1,6 +1,12 @@
-const { createCanvas, loadImage, GlobalFonts } = require('@napi-rs/canvas');
+let canvasLib = null;
+try {
+  canvasLib = require('@napi-rs/canvas');
+} catch (e) {
+  // @napi-rs/canvas not available or not installed
+}
 const path = require('path');
 const db = require('../database/db');
+
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -51,6 +57,10 @@ function getAccentColor(guildId) {
  * @returns {Promise<Buffer>} PNG buffer
  */
 async function generateRankCard(user, stats, rank, guildId) {
+  if (!canvasLib) {
+    throw new Error('@napi-rs/canvas is not installed or available');
+  }
+  const { createCanvas, loadImage } = canvasLib;
   const W = 900, H = 280;
   const canvas = createCanvas(W, H);
   const ctx = canvas.getContext('2d');
@@ -167,10 +177,14 @@ async function generateRankCard(user, stats, rank, guildId) {
  * Generates a pink-clean welcome card image.
  * @param {import('discord.js').GuildMember} member
  * @returns {Promise<Buffer>} PNG buffer
- */
 async function generateWelcomeCard(member) {
+  if (!canvasLib) {
+    throw new Error('@napi-rs/canvas is not installed or available');
+  }
+  const { createCanvas, loadImage } = canvasLib;
   const W = 900, H = 400;
   const canvas = createCanvas(W, H);
+
   const ctx = canvas.getContext('2d');
 
   const guildId = member.guild.id;

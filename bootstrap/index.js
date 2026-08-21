@@ -115,13 +115,30 @@ console.log('');
 // ─── STEP 2: Install dependencies ──────────────────────────
 const pkgJsonPath = path.join(CONTAINER, 'package.json');
 const nodeModules = path.join(CONTAINER, 'node_modules');
+
+// Ensure container package.json contains all required dependencies
+try {
+  const reqDeps = {
+    "@napi-rs/canvas": "^0.1.53",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  };
+  let pkg = { name: "golem-bot", version: "1.0.0", main: "index.js", scripts: { start: "node index.js" } };
+  if (fileExists(pkgJsonPath)) {
+    pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+  }
+  pkg.dependencies = { ...reqDeps, ...(pkg.dependencies || {}) };
+  fs.writeFileSync(pkgJsonPath, JSON.stringify(pkg, null, 2), 'utf8');
+} catch (_) {}
+
 const pkgJsonTime = fileExists(pkgJsonPath) ? fs.statSync(pkgJsonPath).mtimeMs : 0;
 const lockTime = fileExists(path.join(CONTAINER, 'package-lock.json')) ? fs.statSync(path.join(CONTAINER, 'package-lock.json')).mtimeMs : 0;
 const nodeModulesTime = fileExists(nodeModules) ? fs.statSync(nodeModules).mtimeMs : 0;
 
 // Install if missing, or if package.json/lock is newer than node_modules
-// (new dependencies were added to the repo).
 if (!fileExists(path.join(CONTAINER, 'node_modules', 'discord.js')) ||
+    !fileExists(path.join(CONTAINER, 'node_modules', '@napi-rs', 'canvas')) ||
     pkgJsonTime > nodeModulesTime || lockTime > nodeModulesTime) {
   console.log('[Golem] Installing Node.js dependencies (this may take 30-60s)...');
   console.log('');
@@ -138,6 +155,7 @@ if (!fileExists(path.join(CONTAINER, 'node_modules', 'discord.js')) ||
 } else {
   console.log('[Golem] node_modules already installed — skipping npm install.');
 }
+
 
 console.log('');
 
