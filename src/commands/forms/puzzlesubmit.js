@@ -5,9 +5,9 @@ const db = require('../../database/db');
 const fs = require('fs');
 const path = require('path');
 
-function getFormsConfig() {
+function getFormsConfig(guildId) {
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
+    const cfg = db.getGuildConfig(guildId);
     return (cfg.forms && cfg.forms.puzzlesubmit) || null;
   } catch (e) {
     return null;
@@ -66,7 +66,7 @@ module.exports = {
     const hint = interaction.options.getString('hint');
     const image = interaction.options.getAttachment('image');
     const answerImage = interaction.options.getAttachment('answer_image');
-    const cfg = getFormsConfig();
+    const cfg = getFormsConfig(interaction.guildId);
 
     await interaction.deferReply({ flags: 64 });
 

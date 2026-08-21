@@ -4,9 +4,10 @@ const logger = require('../../utils/logger');
 const fs = require('fs');
 const path = require('path');
 
-function getFormsConfig() {
+function getFormsConfig(guildId) {
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
+    const db = require('../../database/db');
+    const cfg = db.getGuildConfig(guildId);
     return (cfg.forms && cfg.forms.modmail) || null;
   } catch (e) {
     return null;
@@ -44,7 +45,7 @@ module.exports = {
       .filter(a => a && a.contentType && a.contentType.startsWith('image/'))
       .slice(0, 3);
 
-    const cfg = getFormsConfig();
+    const cfg = getFormsConfig(interaction.guildId);
 
     await interaction.deferReply({ flags: 64 });
 

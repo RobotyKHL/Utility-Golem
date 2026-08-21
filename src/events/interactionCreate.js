@@ -28,25 +28,23 @@ module.exports = {
         }
       }
 
-      // Check command channel restrictions via config.json
+      // Check command channel restrictions via config.json (supports multi-guild)
       try {
-        const configPath = path.join(process.cwd(), 'config.json');
-        if (fs.existsSync(configPath)) {
-          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-          if (config.commandChannels && config.commandChannels[command.data.name]) {
-            const allowedChannels = config.commandChannels[command.data.name];
-            
-            // If the array is empty, it means no restriction (allowed everywhere)
-            // If it has IDs, check if the current channel is one of them
-            if (allowedChannels.length > 0) {
-              const stringChannels = allowedChannels.map(id => String(id).trim());
-              if (!stringChannels.includes(interaction.channelId)) {
-                const channelsList = stringChannels.map(id => `<#${id}>`).join(', ');
-                return interaction.reply({
-                  content: `This command can only be used in the following channel(s): ${channelsList}`,
-                  flags: 64
-                });
-              }
+        const db = require('../database/db');
+        const guildConfig = db.getGuildConfig(interaction.guildId);
+        if (guildConfig.commandChannels && guildConfig.commandChannels[command.data.name]) {
+          const allowedChannels = guildConfig.commandChannels[command.data.name];
+
+          // If the array is empty, it means no restriction (allowed everywhere)
+          // If it has IDs, check if the current channel is one of them
+          if (allowedChannels.length > 0) {
+            const stringChannels = allowedChannels.map(id => String(id).trim());
+            if (!stringChannels.includes(interaction.channelId)) {
+              const channelsList = stringChannels.map(id => `<#${id}>`).join(', ');
+              return interaction.reply({
+                content: `This command can only be used in the following channel(s): ${channelsList}`,
+                flags: 64
+              });
             }
           }
         }

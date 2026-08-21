@@ -53,5 +53,25 @@
     "starboard": false,
     "minecraft": true,
     "utility": true
+  },
+
+  "_multiGuildNote": "Optional: define per-server overrides in 'guilds'. Each key is a Discord server ID. Any key set here overrides the root-level settings above for that specific server.",
+  "guilds": {
+    "REPLACE_WITH_SERVER_1_ID": {
+      "guild": { "id": "REPLACE_WITH_SERVER_1_ID", "prefix": "g!", "embedColor": "#5865F2" },
+      "channels": { "logs": "", "welcome": "", "goodbye": "", "levelUp": "", "suggestions": "", "tickets": "" },
+      "commandChannels": { "level": [], "giveaway": [] },
+      "forms": { "modmail": { "channel": "", "role": "" }, "puzzlesubmit": { "channel": "", "role": "", "publicChannel": "", "postRole": "" } },
+      "messages": { "welcome": "Welcome {user} to {server}!", "goodbye": "{username} has left the server." },
+      "modules": { "moderation": true, "automod": false, "logging": true, "welcome": true, "leveling": true, "tickets": true, "suggestions": true, "giveaways": true, "starboard": false, "minecraft": true, "utility": true }
+    },
+    "REPLACE_WITH_SERVER_2_ID": {
+      "guild": { "id": "REPLACE_WITH_SERVER_2_ID", "prefix": "g!", "embedColor": "#FF5733" },
+      "channels": { "logs": "", "welcome": "", "goodbye": "", "levelUp": "", "suggestions": "", "tickets": "" },
+      "commandChannels": { "level": [], "giveaway": [] },
+      "forms": { "modmail": { "channel": "", "role": "" }, "puzzlesubmit": { "channel": "", "role": "", "publicChannel": "", "postRole": "" } },
+      "messages": { "welcome": "Welcome {user} to {server}!", "goodbye": "{username} has left the server." },
+      "modules": { "moderation": true, "automod": false, "logging": true, "welcome": true, "leveling": false, "tickets": true, "suggestions": true, "giveaways": false, "starboard": false, "minecraft": false, "utility": true }
+    }
   }
 }

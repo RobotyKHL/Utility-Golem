@@ -5,9 +5,9 @@ const logger = require('../../utils/logger');
 const fs = require('fs');
 const path = require('path');
 
-function getFormsConfig() {
+function getFormsConfig(guildId) {
   try {
-    const cfg = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8'));
+    const cfg = db.getGuildConfig(guildId);
     return (cfg.forms && cfg.forms.puzzlesubmit) || null;
   } catch (e) {
     return null;
@@ -29,7 +29,7 @@ module.exports = {
       return interaction.reply({ content: "This submission can no longer be found (already processed).", flags: 64 });
     }
 
-    const cfg = getFormsConfig();
+    const cfg = getFormsConfig(interaction.guildId);
     const mode = verb === 'approve' ? 'approve' : 'reject';
 
     if (mode === 'approve') {

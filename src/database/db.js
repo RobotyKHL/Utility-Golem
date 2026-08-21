@@ -18,6 +18,15 @@ function getConfig() {
   return {};
 }
 
+// Get config for a specific guild, falling back to root config for backwards compatibility
+function getGuildConfig(guildId) {
+  const config = getConfig();
+  if (guildId && config.guilds && config.guilds[guildId]) {
+    return config.guilds[guildId];
+  }
+  return config;
+}
+
 // Memory cache for database content
 let data = {
   guild_settings: {},
@@ -70,7 +79,7 @@ function init() {
 // Settings Cache
 function getGuildSettings(guildId) {
   // Always merge config.json values on top of whatever is in the database
-  const config = getConfig();
+  const config = getGuildConfig(guildId);
 
   if (!data.guild_settings[guildId]) {
     const defaultConfig = require('../config/default');
@@ -155,7 +164,7 @@ function updateGuildSettings(guildId, key, value) {
 
 function isModuleEnabled(guildId, moduleName) {
   // Read from config.json first — it is the source of truth
-  const config = getConfig();
+  const config = getGuildConfig(guildId);
   if (config.modules && config.modules.hasOwnProperty(moduleName)) {
     return config.modules[moduleName] === true;
   }
@@ -410,6 +419,7 @@ module.exports = {
     }
   },
   init,
+  getGuildConfig,
   getGuildSettings,
   updateGuildSettings,
   isModuleEnabled,

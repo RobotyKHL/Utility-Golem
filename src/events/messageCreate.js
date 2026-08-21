@@ -86,14 +86,11 @@ module.exports = {
 
           let targetChannel = null;
           try {
-            const configPath = path.join(process.cwd(), 'config.json');
-            if (fs.existsSync(configPath)) {
-              const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-              const levelUpChannelId = (config.channels && config.channels.levelUp) || config.levelUpChannel || '';
-              if (levelUpChannelId && levelUpChannelId.trim() !== '') {
-                const fetchedChannel = message.guild.channels.cache.get(levelUpChannelId.trim());
-                if (fetchedChannel) targetChannel = fetchedChannel;
-              }
+            const guildCfg = db.getGuildConfig(guildId);
+            const levelUpChannelId = (guildCfg.channels && guildCfg.channels.levelUp) || '';
+            if (levelUpChannelId && levelUpChannelId.trim() !== '') {
+              const fetchedChannel = message.guild.channels.cache.get(levelUpChannelId.trim());
+              if (fetchedChannel) targetChannel = fetchedChannel;
             }
           } catch (e) {
             // Ignore config read errors
