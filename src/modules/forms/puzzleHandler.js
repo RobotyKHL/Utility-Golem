@@ -16,21 +16,28 @@ function getFormsConfig(guildId) {
 
 module.exports = {
   async handleInteraction(interaction) {
-    // Only staff can approve/reject
-    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+    const [prefix, verb, submissionId] = interaction.customId.split('_');
+    if (prefix !== 'puzzle') return;
+
+    const cfg = getFormsConfig(interaction.guildId);
+
+    // Allow users with ManageGuild, Administrator, OR the configured staff role
+    const hasAdmin = interaction.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
+                     interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    const hasRole = cfg && cfg.role && interaction.member.roles.cache.has(String(cfg.role).trim());
+
+    if (!hasAdmin && !hasRole) {
       return interaction.reply({ content: "You do not have permission to review puzzle submissions.", flags: 64 });
     }
 
-    const [prefix, verb, submissionId] = interaction.customId.split('_');
-    if (prefix !== 'puzzle') return;
     const submission = db.getPuzzleSubmission(submissionId);
 
     if (!submission) {
       return interaction.reply({ content: "This submission can no longer be found (already processed).", flags: 64 });
     }
 
-    const cfg = getFormsConfig(interaction.guildId);
     const mode = verb === 'approve' ? 'approve' : 'reject';
+
 
     if (mode === 'approve') {
       const publicChannel = cfg && cfg.publicChannel
