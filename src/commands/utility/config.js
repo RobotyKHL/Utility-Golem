@@ -90,8 +90,8 @@ module.exports = {
     }
 
     if (subcommand === "commands") {
-      const enabled = interaction.opt.options.getBoolean("add/remove")
-      const channel = interaction.opt.options.getChannel("channel")
+      const enabled = interaction.options.getBoolean("add/remove")
+      const channel = interaction.options.getChannel("channel")
 
       if (enabled == true || enabled == undefined) {
         if (channel) {
