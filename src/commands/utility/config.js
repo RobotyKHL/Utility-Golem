@@ -10,7 +10,7 @@ module.exports = {
     .addSubcommand(sub =>
       sub.setName("commands").setDescription("Sets the commands channel to block messages."))
     .addChannelOption(opt => opt.setName("channel").setDescription("Where to set the commands channel"))
-    .addBooleanOption(opt => opt.setName("add/remove").setDescription("To set the channel (true), or to set it to nothing. (false)"))
+    .addBooleanOption(opt => opt.setName("addremove").setDescription("To set the channel (true), or to set it to nothing. (false)"))
     .addSubcommand(sub =>
       sub.setName('module')
         .setDescription('Enable or disable Golem bot modules')
