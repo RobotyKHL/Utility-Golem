@@ -8,57 +8,61 @@ module.exports = {
     .setName('config')
     .setDescription('Configure Golem server settings')
     .addSubcommand(sub =>
+      sub.setName("commands").setDescription("Sets the commands channel to block messages."))
+    .addChannelOption(opt => opt.setName("channel").setDescription("Where to set the commands channel"))
+    .addBooleanOption(opt => opt.setName("add/remove").setDescription("To set the channel (true), or to set it to nothing. (false)"))
+    .addSubcommand(sub =>
       sub.setName('module')
-         .setDescription('Enable or disable Golem bot modules')
-         .addStringOption(opt =>
-           opt.setName('name')
-              .setDescription('The module name')
-              .setRequired(true)
-              .addChoices(
-                { name: 'Moderation', value: 'moderation' },
-                { name: 'Automod', value: 'automod' },
-                { name: 'Logging', value: 'logging' },
-                { name: 'Welcome System', value: 'welcome' },
-                { name: 'Ticketing', value: 'tickets' },
-                { name: 'Suggestions', value: 'suggestions' },
-                { name: 'Giveaways', value: 'giveaways' },
-                { name: 'Leveling', value: 'leveling' },
-                { name: 'Starboard', value: 'starboard' },
-                { name: 'Minecraft Integration', value: 'minecraft' }
-              )
-         )
-         .addBooleanOption(opt => opt.setName('enabled').setDescription('Toggle state').setRequired(true))
+        .setDescription('Enable or disable Golem bot modules')
+        .addStringOption(opt =>
+          opt.setName('name')
+            .setDescription('The module name')
+            .setRequired(true)
+            .addChoices(
+              { name: 'Moderation', value: 'moderation' },
+              { name: 'Automod', value: 'automod' },
+              { name: 'Logging', value: 'logging' },
+              { name: 'Welcome System', value: 'welcome' },
+              { name: 'Ticketing', value: 'tickets' },
+              { name: 'Suggestions', value: 'suggestions' },
+              { name: 'Giveaways', value: 'giveaways' },
+              { name: 'Leveling', value: 'leveling' },
+              { name: 'Starboard', value: 'starboard' },
+              { name: 'Minecraft Integration', value: 'minecraft' }
+            )
+        )
+        .addBooleanOption(opt => opt.setName('enabled').setDescription('Toggle state').setRequired(true))
     )
     .addSubcommand(sub =>
       sub.setName('welcome')
-         .setDescription('Configure Welcome Messages')
-         .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable welcome messages').setRequired(true))
-         .addChannelOption(opt => opt.setName('channel').setDescription('Where welcome embeds are sent').addChannelTypes(ChannelType.GuildText))
-         .addStringOption(opt => opt.setName('message').setDescription('Message support variables: {user}, {username}, {server}, {membercount}'))
+        .setDescription('Configure Welcome Messages')
+        .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable welcome messages').setRequired(true))
+        .addChannelOption(opt => opt.setName('channel').setDescription('Where welcome embeds are sent').addChannelTypes(ChannelType.GuildText))
+        .addStringOption(opt => opt.setName('message').setDescription('Message support variables: {user}, {username}, {server}, {membercount}'))
     )
     .addSubcommand(sub =>
       sub.setName('goodbye')
-         .setDescription('Configure Goodbye Messages')
-         .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable goodbye messages').setRequired(true))
-         .addChannelOption(opt => opt.setName('channel').setDescription('Where goodbye embeds are sent').addChannelTypes(ChannelType.GuildText))
-         .addStringOption(opt => opt.setName('message').setDescription('Message support variables: {user}, {username}, {server}, {membercount}'))
+        .setDescription('Configure Goodbye Messages')
+        .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable goodbye messages').setRequired(true))
+        .addChannelOption(opt => opt.setName('channel').setDescription('Where goodbye embeds are sent').addChannelTypes(ChannelType.GuildText))
+        .addStringOption(opt => opt.setName('message').setDescription('Message support variables: {user}, {username}, {server}, {membercount}'))
     )
     .addSubcommand(sub =>
       sub.setName('logging')
-         .setDescription('Configure Server Logging channel')
-         .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable server logging').setRequired(true))
-         .addChannelOption(opt => opt.setName('channel').setDescription('Log channel').addChannelTypes(ChannelType.GuildText))
+        .setDescription('Configure Server Logging channel')
+        .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable server logging').setRequired(true))
+        .addChannelOption(opt => opt.setName('channel').setDescription('Log channel').addChannelTypes(ChannelType.GuildText))
     )
     .addSubcommand(sub =>
       sub.setName('starboard')
-         .setDescription('Configure Starboard channel')
-         .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable starboard').setRequired(true))
-         .addChannelOption(opt => opt.setName('channel').setDescription('Starboard channel').addChannelTypes(ChannelType.GuildText))
-         .addIntegerOption(opt => opt.setName('threshold').setDescription('Required stars to pin (default: 3)').setMinValue(1))
+        .setDescription('Configure Starboard channel')
+        .addBooleanOption(opt => opt.setName('enabled').setDescription('Enable starboard').setRequired(true))
+        .addChannelOption(opt => opt.setName('channel').setDescription('Starboard channel').addChannelTypes(ChannelType.GuildText))
+        .addIntegerOption(opt => opt.setName('threshold').setDescription('Required stars to pin (default: 3)').setMinValue(1))
     )
     .addSubcommand(sub =>
       sub.setName('status')
-         .setDescription('Display current server config status')
+        .setDescription('Display current server config status')
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
@@ -68,7 +72,7 @@ module.exports = {
 
     if (subcommand === 'status') {
       let enabledModules = [];
-      try { enabledModules = JSON.parse(settings.enabled_modules || '[]'); } catch (e) {}
+      try { enabledModules = JSON.parse(settings.enabled_modules || '[]'); } catch (e) { }
 
       const embed = createEmbed({
         title: `${interaction.guild.name} Settings`,
@@ -85,12 +89,33 @@ module.exports = {
       return interaction.reply({ embeds: [embed] });
     }
 
+    if (subcommand === "commands") {
+      const enabled = interaction.opt.options.getBoolean("add/remove")
+      const channel = interaction.opt.options.getChannel("channel")
+
+      if (enabled == true || enabled == undefined) {
+        if (channel) {
+          const before = db.getGuildSettings(channel.id).commandOnlyChannels
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels ', before.append(channel.id))
+        } else {
+          const before = db.getGuildSettings(interaction.guildId)
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels ', before.append(interaction.channel.id))
+        }
+      } else {
+        if (channel) {
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.splice(0, 1, channel.id))
+        } else {
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.splice(0, 1, interaction.channel.id))
+        }
+      }
+    }
+
     if (subcommand === 'module') {
       const name = interaction.options.getString('name');
       const enabled = interaction.options.getBoolean('enabled');
-      
+
       let enabledModules = [];
-      try { enabledModules = JSON.parse(settings.enabled_modules || '[]'); } catch (e) {}
+      try { enabledModules = JSON.parse(settings.enabled_modules || '[]'); } catch (e) { }
 
       if (enabled) {
         if (!enabledModules.includes(name)) enabledModules.push(name);
