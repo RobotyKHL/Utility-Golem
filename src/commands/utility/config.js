@@ -93,11 +93,11 @@ module.exports = {
 
       if (enabled == true || enabled == undefined) {
         if (channel) {
-          const before = db.getGuildSettings(channel.id).commandOnlyChannels
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels ', before.append(channel.id))
+          const before = db.getGuildSettings(interaction.guild.id).commandOnlyChannels
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.append(channel.id))
         } else {
           const before = db.getGuildSettings(interaction.guildId)
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels ', before.append(interaction.channel.id))
+          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.append(interaction.channel.id))
         }
       } else {
         if (channel) {
