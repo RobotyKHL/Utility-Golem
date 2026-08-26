@@ -86,28 +86,27 @@ module.exports = {
       });
       return interaction.reply({ embeds: [embed] });
     }
-
     if (subcommand === "commands") {
-      const enabled = interaction.options.getBoolean("addremove")
-      const channel = interaction.options.getChannel("channel")
+      const add = interaction.options.getBoolean("addremove");
+      const selectedChannel = interaction.options.getChannel("channel");
+      const targetChannel = selectedChannel || interaction.channel;
 
-      if (enabled == true || enabled == undefined) {
-        if (channel) {
-          const before = db.getGuildSettings(interaction.guild.id).commandOnlyChannels
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.append(channel.id))
-        } else {
-          const before = db.getGuildSettings(interaction.guildId)
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.append(interaction.channel.id))
-        }
-      } else {
-        if (channel) {
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.splice(0, 1, channel.id))
-        } else {
-          db.updateGuildSettings(interaction.guildId, 'commandOnlyChannels', before.splice(0, 1, interaction.channel.id))
-        }
-      }
+      const commandOnlyChannels = Array.isArray(settings.commandOnlyChannels)
+        ? settings.commandOnlyChannels
+        : [];
+
+      const updatedChannels = add === false
+        ? commandOnlyChannels.filter(channelId => channelId !== targetChannel.id)
+        : commandOnlyChannels.includes(targetChannel.id)
+          ? commandOnlyChannels
+          : [...commandOnlyChannels, targetChannel.id];
+
+      db.updateGuildSettings(guildId, "commandOnlyChannels", updatedChannels);
+
+      return interaction.reply({
+        content: `Command-only channel ${add === false ? "removed" : "added"}: ${targetChannel}`
+      });
     }
-
     if (subcommand === 'module') {
       const name = interaction.options.getString('name');
       const enabled = interaction.options.getBoolean('enabled');
